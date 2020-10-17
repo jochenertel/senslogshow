@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 16.07.2020
+ * updated  : 17.10.2020
  *
  **************************************************************************************************/
 
@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "../lib/slg_date.h"
+#include "../lib/slg_values.h"
 
 
 #define VERSION "test command line tool for slgshow library code"
@@ -234,6 +235,13 @@ int main (int argc, char *argv[])
 //  }
 
 
+
+  k = slg_str_to_time_ind (0, "00:00");
+  printf ("index: %lu\n", (unsigned long) k);
+
+
+  slg_time_ind_to_str (tempstr, 1, 1, 95);
+  printf ("time: %s\n", tempstr);
 
   return (0);
 }
