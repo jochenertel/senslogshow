@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 17.10.2020
+ * updated  : 23.01.2021
  *
  **************************************************************************************************/
 
@@ -140,6 +140,7 @@ int main (int argc, char *argv[])
 {
   slg_date date, date2;
   uint32_t i, k;
+  int32_t t;
   char tempstr[20];
 
   /* help menu ************************************************************************************/
@@ -236,12 +237,37 @@ int main (int argc, char *argv[])
 
 
 
-  k = slg_str_to_time_ind (0, "00:00");
-  printf ("index: %lu\n", (unsigned long) k);
+//  k = slg_str_to_time_ind (0, "00:00");
+//  printf ("index: %lu\n", (unsigned long) k);
+//
+//
+//  slg_time_ind_to_str (tempstr, 1, 1, 95);
+//  printf ("time: %s\n", tempstr);
+
+// printf ("integer temp: %li\n", (long) slg_str2temper("-13.1"));
+
+  t = -7;
+  slg_temper2str (tempstr, 1, t);
+  printf ("temperature: \"%s\"(%li)\n", tempstr, (long) t);
+
+  t = 239;
+  slg_temper2str (tempstr, 1, t);
+  printf ("temperature: \"%s\"(%li)\n", tempstr, (long) t);
 
 
-  slg_time_ind_to_str (tempstr, 1, 1, 95);
-  printf ("time: %s\n", tempstr);
+  k = 200000;
+  slg_rain2str (tempstr, 0, k);
+  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
+  slg_rain2str (tempstr, 1, k);
+  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
+
+  k = 10025;
+  slg_rain2str (tempstr, 0, k);
+  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
+  slg_rain2str (tempstr, 1, k);
+  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
+
+
 
   return (0);
 }
