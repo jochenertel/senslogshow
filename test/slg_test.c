@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 04.07.2021
+ * updated  : 10.07.2021
  *
  **************************************************************************************************/
 
@@ -270,7 +270,9 @@ int main (int argc, char *argv[])
 //  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
 
   k = slg_readdayfile (&wurst, "2020-07-15.txt");
-  printf ("return value: %lu\n", (unsigned long) k);
+  printf ("read return: %lu\n", (unsigned long) k);
+  printf ("empty lines: %lu\n", (unsigned long) slg_cntemptylines (&wurst));
+  printf ("empty secs : %lu\n", (unsigned long) slg_cntemptysecs (&wurst));
 //  else {
 //    slg_date_to_string (tempstr, &wurst.date);
 //    printf ("locid  = %lu\n", (unsigned long) wurst.locid);

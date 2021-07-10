@@ -81,6 +81,30 @@ typedef struct {
 uint32_t slg_readdayfile (slg_daydata *daydata, char *filename);
 
 
+/* counts number of empty measurement lines in dayfile
+ *
+ * parameters:
+ *   *daydata:   daydata object
+ *
+ * return value:
+ *    <num> :  number of empty lines
+ *
+ ****************************************************************************************/
+uint32_t slg_cntemptylines (slg_daydata *daydata);
+
+
+/* counts number of empty measurement sections in dayfile
+ *
+ * parameters:
+ *   *daydata:   daydata object
+ *
+ * return value:
+ *    <num> :  number of empty sections
+ *
+ ****************************************************************************************/
+uint32_t slg_cntemptysecs (slg_daydata *daydata);
+
+
 
 
 

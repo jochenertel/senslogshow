@@ -433,5 +433,62 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename)
 }
 
 
+/* counts number of empty measurement lines in dayfile
+ *
+ * parameters:
+ *   *daydata:   daydata object
+ *
+ * return value:
+ *    <num> :  number of empty lines
+ *
+ ****************************************************************************************/
+uint32_t slg_cntemptylines (slg_daydata *daydata)
+{
+  uint32_t i, dmax, num;
+
+  if (daydata->tmode == 0) dmax = 96;
+  if (daydata->tmode == 1) dmax = 96;
+
+  num = 0;
+  for (i=0; i < dmax; i++) {
+    if (daydata->msrline[i][0] == 0x00) num++;
+  }
+
+  return (num);
+}
+
+
+/* counts number of empty measurement sections in dayfile
+ *
+ * parameters:
+ *   *daydata:   daydata object
+ *
+ * return value:
+ *    <num> :  number of empty sections
+ *
+ ****************************************************************************************/
+uint32_t slg_cntemptysecs (slg_daydata *daydata)
+{
+  uint32_t i, t, dmax, num;
+
+  if (daydata->tmode == 0) dmax = 96;
+  if (daydata->tmode == 1) dmax = 96;
+
+  num = 0;
+  t = 1;
+  for (i=0; i < dmax; i++) {
+    if (daydata->msrline[i][0] == 0x00) {
+      if (t == 1) num++;
+      t = 0;
+    }
+    else {
+      t = 1;
+    }
+  }
+
+  return (num);
+}
+
+
 
 
