@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 23.01.2021
+ * updated  : 04.07.2021
  *
  **************************************************************************************************/
 
@@ -15,6 +15,7 @@
 
 #include "../lib/slg_date.h"
 #include "../lib/slg_values.h"
+#include "../lib/slg_dayfile.h"
 
 
 #define VERSION "test command line tool for slgshow library code"
@@ -142,6 +143,7 @@ int main (int argc, char *argv[])
   uint32_t i, k;
   int32_t t;
   char tempstr[20];
+  slg_daydata wurst;
 
   /* help menu ************************************************************************************/
   if (parArgTypExists (argc, argv, 'h')) {
@@ -172,10 +174,10 @@ int main (int argc, char *argv[])
 //  printf ("%lu.%lu.%lu\n", (unsigned long) date.d, (unsigned long) date.m, (unsigned long) date.y);
 
 
-  slg_date_set_str (&date, "29.10.1985");
-
-  k = slg_date_to_string (tempstr, &date);
-  printf ("%s (%lu)\n", tempstr, (unsigned long) k);
+//  slg_date_set_str (&date, "29.10.1985");
+//
+//  k = slg_date_to_string (tempstr, &date);
+//  printf ("%s (%lu)\n", tempstr, (unsigned long) k);
 
 
 //  /***************************************************************************/
@@ -246,28 +248,44 @@ int main (int argc, char *argv[])
 
 // printf ("integer temp: %li\n", (long) slg_str2temper("-13.1"));
 
-  t = -7;
-  slg_temper2str (tempstr, 1, t);
-  printf ("temperature: \"%s\"(%li)\n", tempstr, (long) t);
+//  t = -7;
+//  slg_temper2str (tempstr, 1, t);
+//  printf ("temperature: \"%s\"(%li)\n", tempstr, (long) t);
+//
+//  t = 239;
+//  slg_temper2str (tempstr, 1, t);
+//  printf ("temperature: \"%s\"(%li)\n", tempstr, (long) t);
+//
+//
+//  k = 200000;
+//  slg_rain2str (tempstr, 0, k);
+//  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
+//  slg_rain2str (tempstr, 1, k);
+//  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
+//
+//  k = 10025;
+//  slg_rain2str (tempstr, 0, k);
+//  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
+//  slg_rain2str (tempstr, 1, k);
+//  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
 
-  t = 239;
-  slg_temper2str (tempstr, 1, t);
-  printf ("temperature: \"%s\"(%li)\n", tempstr, (long) t);
-
-
-  k = 200000;
-  slg_rain2str (tempstr, 0, k);
-  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
-  slg_rain2str (tempstr, 1, k);
-  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
-
-  k = 10025;
-  slg_rain2str (tempstr, 0, k);
-  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
-  slg_rain2str (tempstr, 1, k);
-  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
-
-
+  k = slg_readdayfile (&wurst, "2020-07-15.txt");
+  printf ("return value: %lu\n", (unsigned long) k);
+//  else {
+//    slg_date_to_string (tempstr, &wurst.date);
+//    printf ("locid  = %lu\n", (unsigned long) wurst.locid);
+//    printf ("locstr = %s\n", wurst.locstr);
+//    printf ("tmode  = %lu\n", (unsigned long) wurst.tmode);
+//    printf ("date   = %s\n", tempstr);
+//    printf ("comm.  = %s\n", wurst.comment);
+//
+//    for (k=0; k < wurst.colnum; k++) {
+//      printf ("column %lu ---------------\n", (unsigned long) (k+1));
+//      printf ("typ  = %lu\n", (unsigned long) wurst.coltyp[k]);
+//      printf ("id   = %lu\n", (unsigned long) wurst.colid[k]);
+//      printf ("str  = %s\n", wurst.colstr[k]);
+//    }
+//  }
 
   return (0);
 }
