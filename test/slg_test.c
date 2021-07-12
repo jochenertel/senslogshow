@@ -269,32 +269,37 @@ int main (int argc, char *argv[])
 //  slg_rain2str (tempstr, 1, k);
 //  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
 
-//  k = slg_readdayfile (&wurst, "2020-07-15.txt");
-//  printf ("read return: %lu\n", (unsigned long) k);
-//  printf ("empty lines: %lu\n", (unsigned long) slg_cntemptylines (&wurst));
-//  printf ("empty secs : %lu\n", (unsigned long) slg_cntemptysecs (&wurst));
-//  else {
-//    slg_date_to_string (tempstr, &wurst.date);
-//    printf ("locid  = %lu\n", (unsigned long) wurst.locid);
-//    printf ("locstr = %s\n", wurst.locstr);
-//    printf ("tmode  = %lu\n", (unsigned long) wurst.tmode);
-//    printf ("date   = %s\n", tempstr);
-//    printf ("comm.  = %s\n", wurst.comment);
-//
-//    for (k=0; k < wurst.colnum; k++) {
-//      printf ("column %lu ---------------\n", (unsigned long) (k+1));
-//      printf ("typ  = %lu\n", (unsigned long) wurst.coltyp[k]);
-//      printf ("id   = %lu\n", (unsigned long) wurst.colid[k]);
-//      printf ("str  = %s\n", wurst.colstr[k]);
-//    }
-//  }
+  k = slg_readdayfile (&wurst, "2020-07-15.txt");
+  printf ("read return: %lu\n", (unsigned long) k);
+  if (k == 0) {
+    printf ("empty lines: %lu\n", (unsigned long) slg_cntemptylines (&wurst));
+    printf ("empty secs : %lu\n", (unsigned long) slg_cntemptysecs (&wurst));
 
-  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.0"));
-  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.00"));
-  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.4"));
-  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.50"));
-  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("20.0"));
-  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("87.75"));
+    slg_date_to_string (tempstr, &wurst.date);
+    printf ("locid  = %lu\n", (unsigned long) wurst.locid);
+    printf ("locstr = %s\n", wurst.locstr);
+    printf ("tmode  = %lu\n", (unsigned long) wurst.tmode);
+    printf ("date   = %s\n", tempstr);
+    printf ("comm.  = %s\n", wurst.comment);
+
+    for (k=0; k < wurst.colnum; k++) {
+      printf ("column %lu ---------------\n", (unsigned long) (k+1));
+      printf ("typ  = %lu\n", (unsigned long) wurst.coltyp[k]);
+      printf ("id   = %lu\n", (unsigned long) wurst.colid[k]);
+      printf ("str  = %s\n", wurst.colstr[k]);
+    }
+  }
+
+  k = slg_cntinvalidvals (&wurst);
+  printf ("num invalid values: %lu\n", (unsigned long) k);
+
+
+//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.0"));
+//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.00"));
+//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.4"));
+//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.50"));
+//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("20.0"));
+//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("87.75"));
 
   return (0);
 }

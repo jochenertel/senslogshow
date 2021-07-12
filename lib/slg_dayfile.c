@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 10.07.2021
+ * updated  : 12.07.2021
  *
  **************************************************************************************************/
 
@@ -189,9 +189,8 @@ uint32_t slg_mlgetval (char *value, char *line, uint32_t k)
 uint32_t slg_readdayfile (slg_daydata *daydata, char *filename)
 {
   FILE *fpr;
-  uint32_t res, res2, ready, k, dmax;
+  uint32_t i, j, res, res2, ready, k, dmax;
   char     line[MXMLN], tmp[MXMLN], *ch;
-  size_t   i, j;
   slg_date dtmp;
 
   /* open file */
@@ -407,6 +406,12 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename)
         daydata->msrline[i][0] = 0x00;
         i++;
       }
+
+      /* check all other values of line for valid string length */
+      for (j=0; j < daydata->colnum; j++) {
+        if (slg_mlgetval (tmp, line, (2+j)) != 0) {fclose(fpr); return (12);}
+      }
+
       strcpy (daydata->msrline[i], line);
       i++;
     }
@@ -483,6 +488,45 @@ uint32_t slg_cntemptysecs (slg_daydata *daydata)
     }
     else {
       t = 1;
+    }
+  }
+
+  return (num);
+}
+
+
+/* counts invalid values (error marker) in all columns of all measurement lines
+ *
+ * parameters:
+ *   *daydata:   daydata object
+ *
+ * return value:
+ *    <num> :  number of invalid values
+ *
+ ****************************************************************************************/
+uint32_t slg_cntinvalidvals (slg_daydata *daydata)
+{
+  uint32_t c, i, dmax, num;
+  char     stmp[12];
+
+  if (daydata->tmode == 0) dmax = 96;
+  if (daydata->tmode == 1) dmax = 96;
+
+  num = 0;
+  for (c=0; c < daydata->colnum; c++) {
+    for (i=0; i < dmax; i++) {
+      if (daydata->msrline[i][0] != 0x00) {
+
+        slg_mlgetval (stmp, daydata->msrline[i], (2+c));
+
+        if (daydata->coltyp[c] == DF_TEMP) {
+          if (slg_str2temper(stmp) == CNERR) num++;
+        }
+
+        if (daydata->coltyp[c] == DF_RAIN) {
+          if (slg_str2rain(stmp) == CNERR) num++;
+        }
+      }
     }
   }
 

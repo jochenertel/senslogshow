@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 10.07.2021
+ * updated  : 12.07.2021
  *
  **************************************************************************************************/
 
@@ -103,6 +103,18 @@ uint32_t slg_cntemptylines (slg_daydata *daydata);
  *
  ****************************************************************************************/
 uint32_t slg_cntemptysecs (slg_daydata *daydata);
+
+
+/* counts invalid values (error marker) in all columns of all measurement lines
+ *
+ * parameters:
+ *   *daydata:   daydata object
+ *
+ * return value:
+ *    <num> :  number of invalid values
+ *
+ ****************************************************************************************/
+uint32_t slg_cntinvalidvals (slg_daydata *daydata);
 
 
 
