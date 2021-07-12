@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 17.10.2020
- * updated  : 01.11.2020
+ * updated  : 12.07.2021
  *
  **************************************************************************************************/
 
@@ -119,7 +119,7 @@ void slg_temper2str (char *str, uint32_t mode, int32_t temper);
  *   rain  :  rain*100
  *
  ****************************************************************************************/
-uint32_t slg_str2rain (char *str);
+uint32_t slgtmp_str2rain (char *str);
 
 
 /* converts a rain string (old) into integer (0.0 to 99.9 mm)
@@ -132,7 +132,24 @@ uint32_t slg_str2rain (char *str);
  *   rain  :  rain*100
  *
  ****************************************************************************************/
-uint32_t slg_str2rainold (char *str);
+uint32_t slgtmp_str2rainold (char *str);
+
+
+/* converts a rain string into integer (0.00 to 99.99 mm)
+ * !!! -> temporary a wrapper function for:
+ * !!!    - slgtmp_str2rain()
+ * !!!    - slgtmp_str2rainold()
+ * !!! -> automatic format detection and value correction in old case (* 25/20)
+ *
+ * parameters:
+ *   *str:  pointer to string (4..5 chars, format e.g. "12.75")
+ *
+ * return value:
+ *   CNERR :  error, invalid string
+ *   rain  :  rain*100
+ *
+ ****************************************************************************************/
+uint32_t slg_str2rain (char *str);
 
 
 /* converts an integer value into a rain string depending on mode

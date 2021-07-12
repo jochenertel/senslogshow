@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 17.10.2020
- * updated  : 23.01.2021
+ * updated  : 12.07.2021
  *
  **************************************************************************************************/
 
@@ -332,7 +332,7 @@ void slg_temper2str (char *str, uint32_t mode, int32_t temper)
  *   rain  :  rain*100
  *
  ****************************************************************************************/
-uint32_t slg_str2rain (char *str)
+uint32_t slgtmp_str2rain (char *str)
 {
   size_t i, s;
   char tmp[5];
@@ -362,7 +362,7 @@ uint32_t slg_str2rain (char *str)
  *   rain  :  rain*100
  *
  ****************************************************************************************/
-uint32_t slg_str2rainold (char *str)
+uint32_t slgtmp_str2rainold (char *str)
 {
   size_t i, s;
   char tmp[5];
@@ -378,6 +378,38 @@ uint32_t slg_str2rainold (char *str)
   tmp[s] = 0;
 
   return (slg_str2uint32(tmp));
+}
+
+
+
+/* converts a rain string into integer (0.00 to 99.99 mm)
+ * !!! -> temporary a wrapper function for:
+ * !!!    - slgtmp_str2rain()
+ * !!!    - slgtmp_str2rainold()
+ * !!! -> automatic format detection and value correction in old case (* 25/20)
+ *
+ * parameters:
+ *   *str:  pointer to string (4..5 chars, format e.g. "12.75")
+ *
+ * return value:
+ *   CNERR :  error, invalid string
+ *   rain  :  rain*100
+ *
+ ****************************************************************************************/
+uint32_t slg_str2rain (char *str)
+{
+  uint32_t tmp;
+
+  tmp = slgtmp_str2rain (str);
+  if (tmp != CNERR) return (tmp);
+
+  tmp = slgtmp_str2rainold (str);
+  if (tmp != CNERR) {
+    tmp = (tmp * 5) / 4;
+    return (tmp);
+  }
+
+  return (CNERR);
 }
 
 

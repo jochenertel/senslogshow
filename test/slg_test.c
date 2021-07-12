@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 10.07.2021
+ * updated  : 12.07.2021
  *
  **************************************************************************************************/
 
@@ -269,10 +269,10 @@ int main (int argc, char *argv[])
 //  slg_rain2str (tempstr, 1, k);
 //  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
 
-  k = slg_readdayfile (&wurst, "2020-07-15.txt");
-  printf ("read return: %lu\n", (unsigned long) k);
-  printf ("empty lines: %lu\n", (unsigned long) slg_cntemptylines (&wurst));
-  printf ("empty secs : %lu\n", (unsigned long) slg_cntemptysecs (&wurst));
+//  k = slg_readdayfile (&wurst, "2020-07-15.txt");
+//  printf ("read return: %lu\n", (unsigned long) k);
+//  printf ("empty lines: %lu\n", (unsigned long) slg_cntemptylines (&wurst));
+//  printf ("empty secs : %lu\n", (unsigned long) slg_cntemptysecs (&wurst));
 //  else {
 //    slg_date_to_string (tempstr, &wurst.date);
 //    printf ("locid  = %lu\n", (unsigned long) wurst.locid);
@@ -288,6 +288,13 @@ int main (int argc, char *argv[])
 //      printf ("str  = %s\n", wurst.colstr[k]);
 //    }
 //  }
+
+  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.0"));
+  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.00"));
+  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.4"));
+  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.50"));
+  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("20.0"));
+  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("87.75"));
 
   return (0);
 }
