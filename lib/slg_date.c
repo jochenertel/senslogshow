@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 16.07.2020
+ * updated  : 27.12.2021
  *
  **************************************************************************************************/
 
@@ -542,8 +542,6 @@ uint32_t slg_date_number_days_in_year (slg_date *date)
  ****************************************************************************************/
 uint32_t slg_date_to_string (char *str, slg_date *date)
 {
-  char tmp[6];
-
   /* check date */
   if (slg_date_to_unix (date) == 0) return (0);
 
