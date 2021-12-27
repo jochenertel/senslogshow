@@ -4,7 +4,7 @@
  * function : functions to read simple options from command line tool call
  * author   : Jochen Ertel
  * created  : 31.08.2016
- * updated  : 26.12.2021
+ * updated  : 27.12.2021
  *
  **************************************************************************************************/
 
@@ -82,7 +82,7 @@ int parGetUint32 (int argc, char *argv[], char argType, uint32_t *value)
   if (a >= (argc -1)) return (0);
 
   a = sscanf(argv[a+1], "%lu", &temp);
-  value = (uint32_t) temp;
+  *value = (uint32_t) temp;
 
   return (a);
 }
