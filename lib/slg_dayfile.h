@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 12.07.2021
+ * updated  : 27.12.2021
  *
  **************************************************************************************************/
 
@@ -18,6 +18,7 @@
 
 #ifndef _slg_dayfile_h
 #define _slg_dayfile_h
+
 
 
 /* defines and structures *************************************************************************/
@@ -58,6 +59,9 @@ typedef struct {
  * parameters:
  *   *daydata:   target daydata structure
  *   *filename:  path/filename of dayfile to read
+ *   hmode:      0: normal header in file
+ *               1: no header in file (assumed Bretnig: TEMP RAIN)
+ *               2: no header in file (assumed Dresden: TEMP TEMP TEMP)
  *
  * return value:
  *    0 :  operation successfull
@@ -78,7 +82,30 @@ typedef struct {
  *   15 :  error: to many lines
  *
  ****************************************************************************************/
-uint32_t slg_readdayfile (slg_daydata *daydata, char *filename);
+uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode);
+
+
+/* writes a daydata structure into a dayfile
+ *
+ * parameters:
+ *   *filename:  path/filename of dayfile to write
+ *   *daydata:   source daydata structure
+ *   mode:       0: write meassurement lines directly from stored strings
+ *               1: reassemble meassurement lines from single values
+ *
+ * return value:
+ *    0 :  operation successfull
+ *    1 :  error: opening file failed
+ *    2 :  error: invalid daydata
+ *
+ ****************************************************************************************/
+uint32_t slg_writedayfile (char *filename, slg_daydata *daydata, uint32_t mode);
+
+
+
+/* dayfile checker functions **********************************************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
 
 
 /* counts number of empty measurement lines in dayfile

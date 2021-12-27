@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 12.07.2021
+ * updated  : 27.12.2021
  *
  **************************************************************************************************/
 
@@ -20,6 +20,7 @@
 #include "slg_date.h"
 #include "slg_values.h"
 #include "slg_dayfile.h"
+
 
 
 /* private helper functions ***********************************************************************/
@@ -152,10 +153,6 @@ uint32_t slg_mlgetval (char *value, char *line, uint32_t k)
 
 
 
-
-
-
-
 /* read and write day files ***********************************************************************/
 /**************************************************************************************************/
 /**************************************************************************************************/
@@ -166,6 +163,9 @@ uint32_t slg_mlgetval (char *value, char *line, uint32_t k)
  * parameters:
  *   *daydata:   target daydata structure
  *   *filename:  path/filename of dayfile to read
+ *   hmode:      0: normal header in file
+ *               1: no header in file (assumed Bretnig: TEMP RAIN)
+ *               2: no header in file (assumed Dresden: TEMP TEMP TEMP)
  *
  * return value:
  *    0 :  operation successfull
@@ -186,7 +186,7 @@ uint32_t slg_mlgetval (char *value, char *line, uint32_t k)
  *   15 :  error: to many lines
  *
  ****************************************************************************************/
-uint32_t slg_readdayfile (slg_daydata *daydata, char *filename)
+uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
 {
   FILE *fpr;
   uint32_t i, j, res, res2, ready, k, dmax;
@@ -198,180 +198,249 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename)
   if (fpr == NULL) return (1);
 
 
-  /* read first header part *******************************/
-  ready = 0;
-  i = 1;
-  while (!(ready)) {
-    res = slg_readtxtline (line, MXMLN, fpr);
-    if (res == 3) {fclose(fpr); return (2);}
-    if (res == 4) {fclose(fpr); return (3);}
-    if ((res == 1) || (res == 2)) {fclose(fpr); return (4);}
+  /* header in file *************************************************/
+  if (hmode == 0) {
+    /* read first header part *******************************/
+    ready = 0;
+    i = 1;
+    while (!(ready)) {
+      res = slg_readtxtline (line, MXMLN, fpr);
+      if (res == 3) {fclose(fpr); return (2);}
+      if (res == 4) {fclose(fpr); return (3);}
+      if ((res == 1) || (res == 2)) {fclose(fpr); return (4);}
 
-    if (i == 1) {
-      ch = strstr(line, "Location");
-      if (ch != line) {fclose(fpr); return (5);}
+      if (i == 1) {
+        ch = strstr(line, "Location");
+        if (ch != line) {fclose(fpr); return (5);}
 
-      ch = strchr(line, '=');
-      if (ch == NULL) {fclose(fpr); return (5);}
-      ch++;
-      j = 0;
-      while ((ch[0] != ',') && (ch[0] != 0x00)) {
-        if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
+        ch = strchr(line, '=');
+        if (ch == NULL) {fclose(fpr); return (5);}
         ch++;
-      }
-      tmp[j] = 0x00;
-      daydata->locid = slg_str2uint32 (tmp);
-      if (daydata->locid == CNERR) {fclose(fpr); return (5);}
-      if (ch[0] != ',') {fclose(fpr); return (5);}
+        j = 0;
+        while ((ch[0] != ',') && (ch[0] != 0x00)) {
+          if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
+          ch++;
+        }
+        tmp[j] = 0x00;
+        daydata->locid = slg_str2uint32 (tmp);
+        if (daydata->locid == CNERR) {fclose(fpr); return (5);}
+        if (ch[0] != ',') {fclose(fpr); return (5);}
 
-      ch = strchr(line, '"');
-      if (ch == NULL) {fclose(fpr); return (5);}
-      ch++;
-      j = 0;
-      while ((ch[0] != '"') && (ch[0] != 0x00) && (j < 49)) {
-        daydata->locstr[j] = ch[0];
-        ch++; j++;
-      }
-      daydata->locstr[j] = 0x00;
-      if (ch[0] != '"') {fclose(fpr); return (5);}
-    }
-
-    if (i == 2) {
-      ch = strstr(line, "TimeMode");
-      if (ch != line) {fclose(fpr); return (5);}
-
-      ch = strchr(line, '=');
-      if (ch == NULL) {fclose(fpr); return (5);}
-      ch++;
-      j = 0;
-      while (ch[0] != 0x00) {
-        if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
+        ch = strchr(line, '"');
+        if (ch == NULL) {fclose(fpr); return (5);}
         ch++;
+        j = 0;
+        while ((ch[0] != '"') && (ch[0] != 0x00) && (j < 49)) {
+          daydata->locstr[j] = ch[0];
+          ch++; j++;
+        }
+        daydata->locstr[j] = 0x00;
+        if (ch[0] != '"') {fclose(fpr); return (5);}
       }
-      tmp[j] = 0x00;
-      daydata->tmode = slg_str2uint32 (tmp);
-      if (daydata->tmode == CNERR) {fclose(fpr); return (5);}
-      if (daydata->tmode > 1) {fclose(fpr); return (6);}
-    }
 
-    if (i == 3) {
-      ch = strstr(line, "Date");
-      if (ch != line) {fclose(fpr); return (5);}
+      if (i == 2) {
+        ch = strstr(line, "TimeMode");
+        if (ch != line) {fclose(fpr); return (5);}
 
-      ch = strchr(line, '=');
-      if (ch == NULL) {fclose(fpr); return (5);}
-      ch++;
-      j = 0;
-      while (ch[0] != 0x00) {
-        if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
+        ch = strchr(line, '=');
+        if (ch == NULL) {fclose(fpr); return (5);}
         ch++;
+        j = 0;
+        while (ch[0] != 0x00) {
+          if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
+          ch++;
+        }
+        tmp[j] = 0x00;
+        daydata->tmode = slg_str2uint32 (tmp);
+        if (daydata->tmode == CNERR) {fclose(fpr); return (5);}
+        if (daydata->tmode > 1) {fclose(fpr); return (6);}
       }
-      tmp[j] = 0x00;
-      res2 = slg_date_set_str (&daydata->date, tmp);
-      if (res2 == 0) {fclose(fpr); return (5);}
+
+      if (i == 3) {
+        ch = strstr(line, "Date");
+        if (ch != line) {fclose(fpr); return (5);}
+
+        ch = strchr(line, '=');
+        if (ch == NULL) {fclose(fpr); return (5);}
+        ch++;
+        j = 0;
+        while (ch[0] != 0x00) {
+          if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
+          ch++;
+        }
+        tmp[j] = 0x00;
+        res2 = slg_date_set_str (&daydata->date, tmp);
+        if (res2 == 0) {fclose(fpr); return (5);}
+      }
+
+      if (i == 4) {
+        ch = strstr(line, "Comment");
+        if (ch != line) {fclose(fpr); return (5);}
+
+        ch = strchr(line, '=');
+        if (ch == NULL) {fclose(fpr); return (5);}
+
+        ch = strchr(line, '"');
+        if (ch == NULL) {fclose(fpr); return (5);}
+        ch++;
+        j = 0;
+        while ((ch[0] != '"') && (ch[0] != 0x00) && (j < 99)) {
+          daydata->comment[j] = ch[0];
+          ch++; j++;
+        }
+        daydata->comment[j] = 0x00;
+        if (ch[0] != '"') {fclose(fpr); return (5);}
+      }
+
+      if (i == 5) {
+        ch = strstr(line, "----------");
+        if (ch != line) {fclose(fpr); return (5);}
+
+        ready = 1;
+      }
+
+      i++;
     }
 
-    if (i == 4) {
-      ch = strstr(line, "Comment");
-      if (ch != line) {fclose(fpr); return (5);}
 
-      ch = strchr(line, '=');
-      if (ch == NULL) {fclose(fpr); return (5);}
+    /* read second header part ******************************/
+    ready = 0;
+    daydata->colnum = 0;
+    while (!(ready)) {
+      res = slg_readtxtline (line, MXMLN, fpr);
+      if (res == 3) {fclose(fpr); return (2);}
+      if (res == 4) {fclose(fpr); return (3);}
+      if ((res == 1) || (res == 2)) {fclose(fpr); return (4);}
 
-      ch = strchr(line, '"');
-      if (ch == NULL) {fclose(fpr); return (5);}
-      ch++;
-      j = 0;
-      while ((ch[0] != '"') && (ch[0] != 0x00) && (j < 99)) {
-        daydata->comment[j] = ch[0];
-        ch++; j++;
-      }
-      daydata->comment[j] = 0x00;
-      if (ch[0] != '"') {fclose(fpr); return (5);}
-    }
-
-    if (i == 5) {
       ch = strstr(line, "----------");
-      if (ch != line) {fclose(fpr); return (5);}
+      if (ch == line) {
+        if (daydata->colnum == 0) {fclose(fpr); return (7);}
+        ready = 1;
+      }
+      else {
+        if (daydata->colnum == 32) {fclose(fpr); return (9);}
 
-      ready = 1;
+        ch = strstr(line, "Column");
+        if (ch != line) {fclose(fpr); return (7);}
+        tmp[0] = line[6];
+        tmp[1] = line[7];
+        tmp[2] = 0x00;
+        res2 = slg_str2uint32 (tmp);
+        if (res2 != (daydata->colnum + 1)) {fclose(fpr); return (7);}
+
+        ch = strchr(line, '=');
+        if (ch == NULL) {fclose(fpr); return (7);}
+        ch++;
+        j = 0;
+        while ((ch[0] != ',') && (ch[0] != 0x00)) {
+          if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
+          ch++;
+        }
+        tmp[j] = 0x00;
+        if (ch[0] != ',') {fclose(fpr); return (7);}
+        daydata->colid[daydata->colnum] = slg_str2uint32 (tmp);
+        if (daydata->colid[daydata->colnum] == CNERR) {fclose(fpr); return (7);}
+        for (k=0; k < daydata->colnum; k++) {
+          if (daydata->colid[k] == daydata->colid[daydata->colnum]) {fclose(fpr); return (10);}
+        }
+
+        ch++;
+        j = 0;
+        while ((ch[0] != ',') && (ch[0] != 0x00)) {
+          if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
+          ch++;
+        }
+        tmp[j] = 0x00;
+        if (ch[0] != ',') {fclose(fpr); return (7);}
+        daydata->coltyp[daydata->colnum] = 0;
+        if (strcmp(tmp, "TEMP") == 0) daydata->coltyp[daydata->colnum] = DF_TEMP;
+        if (strcmp(tmp, "RAIN") == 0) daydata->coltyp[daydata->colnum] = DF_RAIN;
+        if (daydata->coltyp[daydata->colnum] == 0) {fclose(fpr); return (8);}
+
+        ch = strchr(line, '"');
+        if (ch == NULL) {fclose(fpr); return (7);}
+        ch++;
+        j = 0;
+        while ((ch[0] != '"') && (ch[0] != 0x00) && (j < 49)) {
+          daydata->colstr[daydata->colnum][j] = ch[0];
+          ch++; j++;
+        }
+        daydata->colstr[daydata->colnum][j] = 0x00;
+        if (ch[0] != '"') {fclose(fpr); return (7);}
+
+        daydata->colnum++;
+      }
     }
-
-    i++;
   }
 
 
-  /* read second header part ******************************/
-  ready = 0;
-  daydata->colnum = 0;
-  while (!(ready)) {
+  /* no header in file, Bretnig header assumed (TEMP RAIN) **********/
+  if (hmode == 1) {
+    daydata->locid = 1;
+    strcpy (daydata->locstr, "Bretnig, Charlottengrund 16");
+    daydata->tmode = 1;
+
     res = slg_readtxtline (line, MXMLN, fpr);
     if (res == 3) {fclose(fpr); return (2);}
     if (res == 4) {fclose(fpr); return (3);}
-    if ((res == 1) || (res == 2)) {fclose(fpr); return (4);}
+    res = slg_mlgetval (tmp, line, 0);
+    if (res > 0) {fclose(fpr); return (12);}
+    res = slg_date_set_str (&dtmp, tmp);
+    if (res == 0) {fclose(fpr); return (13);}
+    slg_date_copy (&daydata->date, &dtmp);
+    fclose(fpr);
+    fpr = fopen(filename, "rb");
+    if (fpr == NULL) return (1);
 
-    ch = strstr(line, "----------");
-    if (ch == line) {
-      if (daydata->colnum == 0) {fclose(fpr); return (7);}
-      ready = 1;
-    }
-    else {
-      if (daydata->colnum == 32) {fclose(fpr); return (9);}
+    strcpy (daydata->comment, "");
+    daydata->colnum = 2;
 
-      ch = strstr(line, "Column");
-      if (ch != line) {fclose(fpr); return (7);}
-      tmp[0] = line[6];
-      tmp[1] = line[7];
-      tmp[2] = 0x00;
-      res2 = slg_str2uint32 (tmp);
-      if (res2 != (daydata->colnum + 1)) {fclose(fpr); return (7);}
+    daydata->coltyp[0] = DF_TEMP;
+    daydata->colid[0] = 1;
+    strcpy (daydata->colstr[0], "Aussen");
 
-      ch = strchr(line, '=');
-      if (ch == NULL) {fclose(fpr); return (7);}
-      ch++;
-      j = 0;
-      while ((ch[0] != ',') && (ch[0] != 0x00)) {
-        if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
-        ch++;
-      }
-      tmp[j] = 0x00;
-      if (ch[0] != ',') {fclose(fpr); return (7);}
-      daydata->colid[daydata->colnum] = slg_str2uint32 (tmp);
-      if (daydata->colid[daydata->colnum] == CNERR) {fclose(fpr); return (7);}
-      for (k=0; k < daydata->colnum; k++) {
-        if (daydata->colid[k] == daydata->colid[daydata->colnum]) {fclose(fpr); return (10);}
-      }
-
-      ch++;
-      j = 0;
-      while ((ch[0] != ',') && (ch[0] != 0x00)) {
-        if (ch[0] != ' ') {tmp[j] = ch[0]; j++;}
-        ch++;
-      }
-      tmp[j] = 0x00;
-      if (ch[0] != ',') {fclose(fpr); return (7);}
-      daydata->coltyp[daydata->colnum] = 0;
-      if (strcmp(tmp, "TEMP") == 0) daydata->coltyp[daydata->colnum] = DF_TEMP;
-      if (strcmp(tmp, "RAIN") == 0) daydata->coltyp[daydata->colnum] = DF_RAIN;
-      if (daydata->coltyp[daydata->colnum] == 0) {fclose(fpr); return (8);}
-
-      ch = strchr(line, '"');
-      if (ch == NULL) {fclose(fpr); return (7);}
-      ch++;
-      j = 0;
-      while ((ch[0] != '"') && (ch[0] != 0x00) && (j < 49)) {
-        daydata->colstr[daydata->colnum][j] = ch[0];
-        ch++; j++;
-      }
-      daydata->colstr[daydata->colnum][j] = 0x00;
-      if (ch[0] != '"') {fclose(fpr); return (7);}
-
-      daydata->colnum++;
-    }
+    daydata->coltyp[1] = DF_RAIN;
+    daydata->colid[1] = 2;
+    strcpy (daydata->colstr[1], "");
   }
 
 
-  /* read measurement lines *******************************/
+  /* no header in file, Dresden header assumed (TEMP TEMP TEMP) *****/
+  if (hmode == 2) {
+    daydata->locid = 2;
+    strcpy (daydata->locstr, "Dresden, Wittenberger Strasse 16");
+    daydata->tmode = 0;
+
+    res = slg_readtxtline (line, MXMLN, fpr);
+    if (res == 3) {fclose(fpr); return (2);}
+    if (res == 4) {fclose(fpr); return (3);}
+    res = slg_mlgetval (tmp, line, 0);
+    if (res > 0) {fclose(fpr); return (12);}
+    res = slg_date_set_str (&dtmp, tmp);
+    if (res == 0) {fclose(fpr); return (13);}
+    slg_date_copy (&daydata->date, &dtmp);
+    fclose(fpr);
+    fpr = fopen(filename, "rb");
+    if (fpr == NULL) return (1);
+
+    strcpy (daydata->comment, "");
+    daydata->colnum = 3;
+
+    daydata->coltyp[0] = DF_TEMP;
+    daydata->colid[0] = 1;
+    strcpy (daydata->colstr[0], "Aussen NO-Seite");
+
+    daydata->coltyp[1] = DF_TEMP;
+    daydata->colid[1] = 2;
+    strcpy (daydata->colstr[1], "Aussen SW-Seite");
+
+    daydata->coltyp[2] = DF_TEMP;
+    daydata->colid[2] = 3;
+    strcpy (daydata->colstr[2], "Schlafzimmer");
+  }
+
+
+  /* read measurement lines *****************************************/
   if (daydata->tmode == 0) dmax = 96;
   if (daydata->tmode == 1) dmax = 96;
   i = 0;
@@ -436,6 +505,102 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename)
   fclose(fpr);
   return (0);
 }
+
+
+/* writes a daydata structure into a dayfile
+ *
+ * parameters:
+ *   *filename:  path/filename of dayfile to write
+ *   *daydata:   source daydata structure
+ *   mode:       0: write meassurement lines directly from stored strings
+ *               1: reassemble meassurement lines from single values
+ *
+ * return value:
+ *    0 :  operation successfull
+ *    1 :  error: opening file failed
+ *    2 :  error: invalid daydata
+ *
+ ****************************************************************************************/
+uint32_t slg_writedayfile (char *filename, slg_daydata *daydata, uint32_t mode)
+{
+  FILE *fpw;
+  uint32_t i, c, res, dmax, v;
+  char     stmp[20];
+
+  /* open file */
+  fpw = fopen(filename, "wb");
+  if (fpw == NULL) return (1);
+
+  /* write first header part ******************************/
+  fprintf (fpw, "Location = %lu, \"%s\"\n", (unsigned long) daydata->locid, daydata->locstr);
+  fprintf (fpw, "TimeMode = %lu\n", (unsigned long) daydata->tmode);
+  res = slg_date_to_string (stmp, &daydata->date);
+  if (res == 0) {fclose(fpw); return (2);}
+  fprintf (fpw, "Date     = %s\n", stmp);
+  fprintf (fpw, "Comment  = \"%s\"\n", daydata->comment);
+  fprintf (fpw, "-------------------------------------------------\n");
+
+  /* write second header part *****************************/
+  if (daydata->colnum > 99) {fclose(fpw); return (2);}
+  for (i=1; i <= daydata->colnum; i++) {
+    if (i < 10) fprintf (fpw, "Column0%lu = ", (unsigned long) i);
+    else fprintf (fpw, "Column%lu = ", (unsigned long) i);
+
+    stmp[0] = 0;
+    if (daydata->coltyp[i-1] == DF_TEMP) strcpy (stmp, "TEMP");
+    if (daydata->coltyp[i-1] == DF_RAIN) strcpy (stmp, "RAIN");
+    if (stmp[0] == 0) {fclose(fpw); return (2);}
+
+    fprintf (fpw, "%lu, %s, \"%s\"\n", (unsigned long) daydata->colid[i-1], stmp, daydata->colstr[i-1]);
+  }
+  fprintf (fpw, "-------------------------------------------------\n");
+
+  /* write meassurement lines *****************************/
+  if (mode > 1) {fclose(fpw); return (2);}
+  if (daydata->tmode == 0) dmax = 96;
+  if (daydata->tmode == 1) dmax = 96;
+
+  if (mode == 0) {
+    for (i=0; i < dmax; i++) {
+      if (daydata->msrline[i][0] != 0) fprintf (fpw, "%s\n", daydata->msrline[i]);
+    }
+  }
+
+  if (mode == 1) {
+    for (i=0; i < dmax; i++) {
+      if (daydata->msrline[i][0] != 0) {
+        slg_date_to_string (stmp, &daydata->date);
+        fprintf (fpw, "%s", stmp);
+        slg_timeindex2str (stmp, daydata->tmode, 0, i);
+        fprintf (fpw, " %s", stmp);
+
+        for (c=0; c < daydata->colnum; c++) {
+          slg_mlgetval (stmp, daydata->msrline[i], (2+c));
+          if (daydata->coltyp[c] == DF_TEMP) {
+            v = slg_str2temper (stmp);
+            slg_temper2str (stmp, 1, v);
+            fprintf (fpw, " %s", stmp);
+          }
+          if (daydata->coltyp[c] == DF_RAIN) {
+            v = slg_str2rain (stmp);
+            slg_rain2str (stmp, 1, v);
+            fprintf (fpw, " %s", stmp);
+          }
+        }
+        fprintf (fpw, "\n");
+      }
+    }
+  }
+
+  fclose(fpw);
+  return (0);
+}
+
+
+
+/* dayfile checker functions **********************************************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
 
 
 /* counts number of empty measurement lines in dayfile
