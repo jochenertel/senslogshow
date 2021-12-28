@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 12.07.2021
+ * updated  : 26.12.2021
  *
  **************************************************************************************************/
 
@@ -13,65 +13,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../lib/options.h"
 #include "../lib/slg_date.h"
 #include "../lib/slg_values.h"
 #include "../lib/slg_dayfile.h"
 
 
 #define VERSION "test command line tool for slgshow library code"
-
-
-
-/***************************************************************************************************
- * functions for reading command line options and printing error messages
- **************************************************************************************************/
-
-/* function : parArgTypExists ()
- *            -> checks whether an argument typ exists or not
- *               (an argument typ of programm call consists of 1 character
- *               with a leading '-')
- *            -> returns 0 if argument does not exist or the index of argument
- *               type in the argv[] array
- ******************************************************************************/
-int parArgTypExists (int argc, char *argv[], char argType)
-{
-  int  i;
-  char tmp[3];
-
-  tmp[0] = '-';
-  tmp[1] = argType;
-  tmp[2] = 0;
-
-  if (argc > 1) {
-    for (i = 1; i < argc; i++) {
-      if (!strcmp (argv[i], tmp))
-        return (i);
-    }
-  }
-  return (0);
-}
-
-
-/* function : parGetString ()
- *            -> gets string argument value
- *            -> returns 0 in error case, returns 1 if OK
- *               (string is limited to max. 1024 characters)
- ******************************************************************************/
-int parGetString (int argc, char *argv[], char argType, char *value)
-{
-  int a;
-
-  a = parArgTypExists (argc, argv, argType);
-
-  /* error checking */
-  if (a == 0) return (0);
-  if (a >= (argc -1)) return (0);
-  if (strlen(argv[a+1]) > 1024) return (0);
-
-  strcpy(value, argv[a+1]);
-  return (1);
-}
-
 
 
 
@@ -161,6 +109,24 @@ int main (int argc, char *argv[])
   date.y = 0;
   date.m = 0;
   date.d = 0;
+
+  slg_date_set_int (&date, 14, 1, 2020);
+  slg_date_to_string (tempstr, &date);
+  printf ("%s\n", tempstr);
+  slg_date_to_fstring (tempstr, &date);
+  printf ("%s\n", tempstr);
+
+  slg_date_set_int (&date, 7, 4, 2014);
+  slg_date_to_string (tempstr, &date);
+  printf ("%s\n", tempstr);
+  slg_date_to_fstring (tempstr, &date);
+  printf ("%s\n", tempstr);
+
+  slg_date_set_int (&date, 23, 11, 2014);
+  slg_date_to_string (tempstr, &date);
+  printf ("%s\n", tempstr);
+  slg_date_to_fstring (tempstr, &date);
+  printf ("%s\n", tempstr);
 
 //  k = slg_date_set_int (&date, 14,  1,  2104);
 //  printf ("%lu.%lu.%lu\n", (unsigned long) date.d, (unsigned long) date.m, (unsigned long) date.y);
@@ -269,29 +235,32 @@ int main (int argc, char *argv[])
 //  slg_rain2str (tempstr, 1, k);
 //  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
 
-  k = slg_readdayfile (&wurst, "2020-07-15.txt");
-  printf ("read return: %lu\n", (unsigned long) k);
-  if (k == 0) {
-    printf ("empty lines: %lu\n", (unsigned long) slg_cntemptylines (&wurst));
-    printf ("empty secs : %lu\n", (unsigned long) slg_cntemptysecs (&wurst));
-
-    slg_date_to_string (tempstr, &wurst.date);
-    printf ("locid  = %lu\n", (unsigned long) wurst.locid);
-    printf ("locstr = %s\n", wurst.locstr);
-    printf ("tmode  = %lu\n", (unsigned long) wurst.tmode);
-    printf ("date   = %s\n", tempstr);
-    printf ("comm.  = %s\n", wurst.comment);
-
-    for (k=0; k < wurst.colnum; k++) {
-      printf ("column %lu ---------------\n", (unsigned long) (k+1));
-      printf ("typ  = %lu\n", (unsigned long) wurst.coltyp[k]);
-      printf ("id   = %lu\n", (unsigned long) wurst.colid[k]);
-      printf ("str  = %s\n", wurst.colstr[k]);
-    }
-  }
-
-  k = slg_cntinvalidvals (&wurst);
-  printf ("num invalid values: %lu\n", (unsigned long) k);
+//  k = slg_readdayfile (&wurst, "2021-12-26.txt", 2);
+//  printf ("read return: %lu\n", (unsigned long) k);
+//  if (k == 0) {
+//    printf ("empty lines: %lu\n", (unsigned long) slg_cntemptylines (&wurst));
+//    printf ("empty secs : %lu\n", (unsigned long) slg_cntemptysecs (&wurst));
+//
+//    slg_date_to_string (tempstr, &wurst.date);
+//    printf ("locid  = %lu\n", (unsigned long) wurst.locid);
+//    printf ("locstr = %s\n", wurst.locstr);
+//    printf ("tmode  = %lu\n", (unsigned long) wurst.tmode);
+//    printf ("date   = %s\n", tempstr);
+//    printf ("comm.  = %s\n", wurst.comment);
+//
+//    for (k=0; k < wurst.colnum; k++) {
+//      printf ("column %lu ---------------\n", (unsigned long) (k+1));
+//      printf ("typ  = %lu\n", (unsigned long) wurst.coltyp[k]);
+//      printf ("id   = %lu\n", (unsigned long) wurst.colid[k]);
+//      printf ("str  = %s\n", wurst.colstr[k]);
+//    }
+//  }
+//
+//  k = slg_cntinvalidvals (&wurst);
+//  printf ("num invalid values: %lu\n", (unsigned long) k);
+//
+//  k = slg_writedayfile ("2021-12-26_neu.txt", &wurst, 1);
+//  printf ("read return (write dayfile): %lu\n", (unsigned long) k);
 
 
 //  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.0"));

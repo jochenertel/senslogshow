@@ -1,5 +1,8 @@
-slg_test: slg_date.o slg_values.o slg_dayfile.o slg_test.o
-	gcc -Wall -o slg_test slg_date.o slg_values.o slg_dayfile.o slg_test.o
+slg_test: options.o slg_date.o slg_values.o slg_dayfile.o slg_test.o
+	gcc -Wall -o slg_test options.o slg_date.o slg_values.o slg_dayfile.o slg_test.o
+
+options.o: ../lib/options.h ../lib/options.c
+	gcc -Wall -c ../lib/options.c
 
 slg_date.o: ../lib/slg_date.h ../lib/slg_date.c
 	gcc -Wall -c ../lib/slg_date.c
