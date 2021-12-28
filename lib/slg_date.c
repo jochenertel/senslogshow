@@ -529,7 +529,7 @@ uint32_t slg_date_number_days_in_year (slg_date *date)
 
 
 
-/* convertion of date to string
+/* convertion of date to string (e.g. "27.12.2021")
  *
  * parameters:
  *   *str:    pointer to char array of min. 11 chars
@@ -567,6 +567,50 @@ uint32_t slg_date_to_string (char *str, slg_date *date)
   str[5] = '.';
 
   sprintf (&str[6], "%lu", (unsigned long) date->y);
+
+  return (1);
+}
+
+
+
+/* convertion of date to file name string (e.g. "2021-12-27")
+ *
+ * parameters:
+ *   *str:    pointer to char array of min. 11 chars
+ *   *date:   pointer to date
+ *
+ * return value:
+ *   0 :  in error case (date is invalid)
+ *   1 :  ok
+ *
+ ****************************************************************************************/
+uint32_t slg_date_to_fstring (char *str, slg_date *date)
+{
+  /* check date */
+  if (slg_date_to_unix (date) == 0) return (0);
+
+  /* make string */
+  sprintf (&str[0], "%lu", (unsigned long) date->y);
+
+  str[4] = '-';
+
+  if (date->m < 10) {
+    str[5] = '0';
+    sprintf (&str[6], "%lu", (unsigned long) date->m);
+  }
+  else {
+    sprintf (&str[5], "%lu", (unsigned long) date->m);
+  }
+
+  str[7] = '-';
+
+  if (date->d < 10) {
+    str[8] = '0';
+    sprintf (&str[9], "%lu", (unsigned long) date->d);
+  }
+  else {
+    sprintf (&str[8], "%lu", (unsigned long) date->d);
+  }
 
   return (1);
 }
