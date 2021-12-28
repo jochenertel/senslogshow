@@ -4,7 +4,7 @@
  * function : functions to read simple options from command line tool call
  * author   : Jochen Ertel
  * created  : 31.08.2016
- * updated  : 26.12.2021
+ * updated  : 27.12.2021
  *
  **************************************************************************************************/
 
@@ -23,22 +23,22 @@
  *            -> returns 0 if argument does not exist or the index of argument
  *               type in the argv[] array
  ******************************************************************************/
-int parArgTypExists (int argc, char *argv[], char argType);
+uint32_t parArgTypExists (int argc, char *argv[], char argType);
 
 
 /* function : parGetString ()
  *            -> gets string argument value
  *            -> returns 0 in error case, returns 1 if OK
- *               (string is limited to max. 4096 characters)
+ *               (string is limited to max. 255 characters)
  ******************************************************************************/
-int parGetString (int argc, char *argv[], char argType, char *value);
+uint32_t parGetString (int argc, char *argv[], char argType, char *value);
 
 
 /* function : parGetUint32 ()
  *            -> gets uint32 argument value
  *            -> returns 0 in error case, returns 1 if OK
  ******************************************************************************/
-int parGetUint32 (int argc, char *argv[], char argType, uint32_t *value);
+uint32_t parGetUint32 (int argc, char *argv[], char argType, uint32_t *value);
 
 
 
