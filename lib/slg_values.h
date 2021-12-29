@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 17.10.2020
- * updated  : 12.07.2021
+ * updated  : 29.12.2021
  *
  **************************************************************************************************/
 
@@ -54,6 +54,20 @@ uint32_t slg_str2uint32 (char *str);
  *
  ****************************************************************************************/
 int32_t slg_str2int32 (char *str);
+
+
+/* get time index number per day dependent on mode
+ *
+ * parameters:
+ *   mode:  0: 96 values per day (15 min steps) starting with 00:00 ending with 23:45
+ *          1: 96 values per day (15 min steps) starting with 00:15 ending with 24:00
+ *
+ * return value:
+ *   CNERR :  error, invalid mode
+ *   other :  number of time index values per day
+ *
+ ****************************************************************************************/
+uint32_t slg_timeindexnum (uint32_t mode);
 
 
 /* converts a day time string into index value depending on mode

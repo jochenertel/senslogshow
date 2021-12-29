@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 27.12.2021
+ * updated  : 29.12.2021
  *
  **************************************************************************************************/
 
@@ -25,7 +25,9 @@
 /**************************************************************************************************/
 /**************************************************************************************************/
 
-# define MXMLN   210    /* max. line length of measurement lines +1 */
+# define MAX_MLN_NUM    96    /* max. number of measurement lines */
+# define MAX_MLN_VALS   16    /* max. number of measurement lines */
+# define MAX_MLN_LEN   150    /* max. line length of measurement lines +1 */
 
 # define DF_TEMP 1
 # define DF_RAIN 2
@@ -33,18 +35,18 @@
 
 /* dayfile structure (is completely private) */
 typedef struct {
-  uint32_t  locid;              /* location id */
-  char      locstr[50];         /* location string */
-  uint32_t  tmode;              /* time_mode */
-  slg_date  date;               /* date of day */
-  char      comment[100];       /* day comment, notes */
+  uint32_t  locid;                              /* location id */
+  char      locstr[50];                         /* location string */
+  uint32_t  tmode;                              /* time_mode */
+  slg_date  date;                               /* date of day */
+  char      comment[100];                       /* day comment, notes */
 
-  uint32_t  colnum;             /* number of columns (max. 32) */
-  uint32_t  coltyp[32];         /* list of column types */
-  uint32_t  colid[32];          /* list of column ids */
-  char      colstr[32][50];     /* list of column strings */
+  uint32_t  colnum;                             /* number of columns (max. MAX_MLN_VALS) */
+  uint32_t  coltyp[MAX_MLN_VALS];               /* list of column types */
+  uint32_t  colid[MAX_MLN_VALS];                /* list of column ids */
+  char      colstr[MAX_MLN_VALS][50];           /* list of column strings */
 
-  char      msrline[96][MXMLN]; /* measure value lines */
+  char      msrline[MAX_MLN_NUM][MAX_MLN_LEN];  /* measure value lines */
 } slg_daydata;
 
 

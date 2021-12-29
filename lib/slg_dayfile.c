@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 27.12.2021
+ * updated  : 29.12.2021
  *
  **************************************************************************************************/
 
@@ -190,7 +190,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
 {
   FILE *fpr;
   uint32_t i, j, res, res2, ready, k, dmax;
-  char     line[MXMLN], tmp[MXMLN], *ch;
+  char     line[MAX_MLN_LEN], tmp[MAX_MLN_LEN], *ch;
   slg_date dtmp;
 
   /* open file */
@@ -204,7 +204,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
     ready = 0;
     i = 1;
     while (!(ready)) {
-      res = slg_readtxtline (line, MXMLN, fpr);
+      res = slg_readtxtline (line, MAX_MLN_LEN, fpr);
       if (res == 3) {fclose(fpr); return (2);}
       if (res == 4) {fclose(fpr); return (3);}
       if ((res == 1) || (res == 2)) {fclose(fpr); return (4);}
@@ -307,7 +307,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
     ready = 0;
     daydata->colnum = 0;
     while (!(ready)) {
-      res = slg_readtxtline (line, MXMLN, fpr);
+      res = slg_readtxtline (line, MAX_MLN_LEN, fpr);
       if (res == 3) {fclose(fpr); return (2);}
       if (res == 4) {fclose(fpr); return (3);}
       if ((res == 1) || (res == 2)) {fclose(fpr); return (4);}
@@ -380,7 +380,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
     strcpy (daydata->locstr, "Bretnig, Charlottengrund 16");
     daydata->tmode = 1;
 
-    res = slg_readtxtline (line, MXMLN, fpr);
+    res = slg_readtxtline (line, MAX_MLN_LEN, fpr);
     if (res == 3) {fclose(fpr); return (2);}
     if (res == 4) {fclose(fpr); return (3);}
     res = slg_mlgetval (tmp, line, 0);
@@ -411,7 +411,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
     strcpy (daydata->locstr, "Dresden, Wittenberger Strasse 16");
     daydata->tmode = 0;
 
-    res = slg_readtxtline (line, MXMLN, fpr);
+    res = slg_readtxtline (line, MAX_MLN_LEN, fpr);
     if (res == 3) {fclose(fpr); return (2);}
     if (res == 4) {fclose(fpr); return (3);}
     res = slg_mlgetval (tmp, line, 0);
@@ -441,12 +441,11 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
 
 
   /* read measurement lines *****************************************/
-  if (daydata->tmode == 0) dmax = 96;
-  if (daydata->tmode == 1) dmax = 96;
+  dmax = slg_timeindexnum (daydata->tmode);
   i = 0;
   ready = 0;
   while (!(ready)) {
-    res = slg_readtxtline (line, MXMLN, fpr);
+    res = slg_readtxtline (line, MAX_MLN_LEN, fpr);
     if (res == 3) {fclose(fpr); return (2);}
     if (res == 4) {fclose(fpr); return (3);}
     if ((i == 0) && (res == 2)) {fclose(fpr); return (4);}
@@ -496,7 +495,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
   }
 
   if (res == 0) {
-    res = slg_readtxtline (line, MXMLN, fpr);
+    res = slg_readtxtline (line, MAX_MLN_LEN, fpr);
     if (res == 3) {fclose(fpr); return (2);}
     if (res == 4) {fclose(fpr); return (3);}
     if (res != 2) {fclose(fpr); return (15);}
@@ -557,8 +556,7 @@ uint32_t slg_writedayfile (char *filename, slg_daydata *daydata, uint32_t mode)
 
   /* write meassurement lines *****************************/
   if (mode > 1) {fclose(fpw); return (2);}
-  if (daydata->tmode == 0) dmax = 96;
-  if (daydata->tmode == 1) dmax = 96;
+  dmax = slg_timeindexnum (daydata->tmode);
 
   if (mode == 0) {
     for (i=0; i < dmax; i++) {
@@ -616,8 +614,7 @@ uint32_t slg_cntemptylines (slg_daydata *daydata)
 {
   uint32_t i, dmax, num;
 
-  if (daydata->tmode == 0) dmax = 96;
-  if (daydata->tmode == 1) dmax = 96;
+  dmax = slg_timeindexnum (daydata->tmode);
 
   num = 0;
   for (i=0; i < dmax; i++) {
@@ -641,8 +638,7 @@ uint32_t slg_cntemptysecs (slg_daydata *daydata)
 {
   uint32_t i, t, dmax, num;
 
-  if (daydata->tmode == 0) dmax = 96;
-  if (daydata->tmode == 1) dmax = 96;
+  dmax = slg_timeindexnum (daydata->tmode);
 
   num = 0;
   t = 1;
@@ -674,8 +670,7 @@ uint32_t slg_cntinvalidvals (slg_daydata *daydata)
   uint32_t c, i, dmax, num;
   char     stmp[12];
 
-  if (daydata->tmode == 0) dmax = 96;
-  if (daydata->tmode == 1) dmax = 96;
+  dmax = slg_timeindexnum (daydata->tmode);
 
   num = 0;
   for (c=0; c < daydata->colnum; c++) {
