@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 27.12.2021
+ * updated  : 06.01.2022
  *
  **************************************************************************************************/
 
@@ -350,6 +350,36 @@ uint32_t slg_date_dec (slg_date *date)
   slg_unix_to_date (date, udate);
 
   return (1);
+}
+
+
+
+/* subtraction of two dates (difference in days)
+ *
+ * parameters:
+ *   *date_a:  pointer to date a
+ *   *date_b:  pointer to date b
+ *
+ * return value:
+ *   <num_days> :  date_a - date_b (0: days are equal or, at least one date is invalid)
+ *
+ ****************************************************************************************/
+int32_t slg_date_sub (slg_date *date_a, slg_date *date_b)
+{
+  uint32_t udate_a, udate_b;
+  int32_t  nda, ndb;
+
+  /* convert dates to unix time and check them inherently */
+  udate_a = slg_date_to_unix (date_a);
+  if (udate_a == 0) return (0);
+  udate_b = slg_date_to_unix (date_b);
+  if (udate_b == 0) return (0);
+
+  /* convert unix time in day offset */
+  nda = (int32_t) ((udate_a - 39600) / 86400);
+  ndb = (int32_t) ((udate_b - 39600) / 86400);
+
+  return (nda - ndb);
 }
 
 

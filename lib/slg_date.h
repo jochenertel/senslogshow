@@ -11,7 +11,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 27.12.2021
+ * updated  : 06.01.2022
  *
  **************************************************************************************************/
 
@@ -124,6 +124,19 @@ uint32_t slg_date_inc (slg_date *date);
  *
  ****************************************************************************************/
 uint32_t slg_date_dec (slg_date *date);
+
+
+/* subtraction of two dates (difference in days)
+ *
+ * parameters:
+ *   *date_a:  pointer to date a
+ *   *date_b:  pointer to date b
+ *
+ * return value:
+ *   <num_days> :  date_a - date_b (0: days are equal or, at least one date is invalid)
+ *
+ ****************************************************************************************/
+int32_t slg_date_sub (slg_date *date_a, slg_date *date_b);
 
 
 /* calculate day of week in numeric and string format
