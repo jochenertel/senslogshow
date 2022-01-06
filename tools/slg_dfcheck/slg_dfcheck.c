@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 27.12.2021
- * updated  : 28.12.2021
+ * updated  : 06.01.2022
  *
  **************************************************************************************************/
 
@@ -19,7 +19,7 @@
 #include "../../lib/slg_dayfile.h"
 
 
-#define VERSION "senslog dayfile checking tool (version 0.1.0)"
+#define VERSION "senslog dayfile checking tool (version 0.1.1)"
 
 
 
@@ -31,6 +31,7 @@
 int main (int argc, char *argv[])
 {
   uint32_t     res, hm, hide, es, el, iv;
+  int32_t      diff;
   char         tstr[256], pstr[256], fname[300];
   slg_date     date, edate;
   slg_daydata  dayf;
@@ -109,11 +110,12 @@ int main (int argc, char *argv[])
     hm = 0;
   }
 
-  res = slg_date_compare (&date, &edate);
-  if (res == 3) {
+  diff = slg_date_sub (&edate, &date);
+  if (diff < 0) {
       printf ("slg_dfcheck: error: end date is before start date\n");
       return (1);
   }
+  printf ("-> checking %i day files:\n", (int) (diff + 1));
 
   if (parArgTypExists (argc, argv, 'z')) hide = 1;
   else hide = 0;
