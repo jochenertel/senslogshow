@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 29.12.2021
+ * updated  : 09.01.2022
  *
  **************************************************************************************************/
 
@@ -694,5 +694,106 @@ uint32_t slg_cntinvalidvals (slg_daydata *daydata)
 }
 
 
+/* checks if a column of a special typ and id exist and gives back column number
+ *
+ * parameters:
+ *   *daydata:  daydata object
+ *   typ     :  column typ
+ *   id      :  column id
+ *
+ * return value:
+ *         0 :  column does not exist
+ *      >= 2 :  column number
+ *
+ ****************************************************************************************/
+uint32_t slg_colexist (slg_daydata *daydata, uint32_t typ, uint32_t id)
+{
+  uint32_t i;
+
+  for (i=0; i < daydata->colnum; i++) {
+    if ((daydata->coltyp[i] == typ) && (daydata->colid[i] == id)) return (i + 2);
+  }
+
+  return (0);
+}
+
+
+/* gets last valid measurement line index of a dayfile
+ *
+ * parameters:
+ *   *daydata:  daydata object
+ *
+ * return value:
+ *   <line_ind> :  line index (0, 1, 2, ...)
+ *
+ ****************************************************************************************/
+uint32_t slg_lastmline (slg_daydata *daydata)
+{
+  uint32_t i, dmax;
+
+  dmax = slg_timeindexnum (daydata->tmode);
+
+  i = dmax - 1;
+  while (daydata->msrline[i][0] == 0x00) {
+    i--;
+  }
+  /* note: one line with values does always exist */
+
+  return (i);
+}
+
+
+
+/* dayfile get value functions ********************************************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+
+/* get a special temperature value from dayfile
+ *
+ * parameters:
+ *   *daydata:  daydata object
+ *   c       :  temperature column index (2, 3, 4, ...)
+ *   k       :  time index (0, 1, 2, ...)
+ *
+ * return value:
+ *   CNERR   :  error, invalid value or value does not exist
+ *   temper  :  temperature T*10
+ *
+ ****************************************************************************************/
+int32_t slg_gettemperval (slg_daydata *daydata, uint32_t c, uint32_t k)
+{
+  char stmp[12];
+
+  if (k >= slg_timeindexnum(daydata->tmode)) return (CNERR);
+
+  slg_mlgetval (stmp, daydata->msrline[k], c);
+
+  return (slg_str2temper(stmp));
+}
+
+
+/* get a special rain value from dayfile
+ *
+ * parameters:
+ *   *daydata:  daydata object
+ *   c       :  rain column index (2, 3, 4, ...)
+ *   k       :  time index (0, 1, 2, ...)
+ *
+ * return value:
+ *   CNERR   :  error, invalid value or value does not exist
+ *   rain    :  rain*100
+ *
+ ****************************************************************************************/
+uint32_t slg_getrainval (slg_daydata *daydata, uint32_t c, uint32_t k)
+{
+  char stmp[12];
+
+  if (k >= slg_timeindexnum(daydata->tmode)) return (CNERR);
+
+  slg_mlgetval (stmp, daydata->msrline[k], c);
+
+  return (slg_str2rain(stmp));
+}
 
 

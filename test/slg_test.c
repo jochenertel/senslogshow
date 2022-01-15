@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 07.01.2020
- * updated  : 26.12.2021
+ * updated  : 15.01.2022
  *
  **************************************************************************************************/
 
@@ -17,6 +17,7 @@
 #include "../lib/slg_date.h"
 #include "../lib/slg_values.h"
 #include "../lib/slg_dayfile.h"
+#include "../lib/slg_temper.h"
 
 
 #define VERSION "test command line tool for slgshow library code"
@@ -89,9 +90,13 @@ int main (int argc, char *argv[])
 {
   slg_date date, date2;
   uint32_t i, k;
-  int32_t t;
+  int32_t t, r;
   char tempstr[20];
   slg_daydata wurst;
+  slg_dtemper tempi;
+
+  int li;
+
 
   /* help menu ************************************************************************************/
   if (parArgTypExists (argc, argv, 'h')) {
@@ -106,27 +111,27 @@ int main (int argc, char *argv[])
   /***************************************************************************/
 
 
-  date.y = 0;
-  date.m = 0;
-  date.d = 0;
-
-  slg_date_set_int (&date, 14, 1, 2020);
-  slg_date_to_string (tempstr, &date);
-  printf ("%s\n", tempstr);
-  slg_date_to_fstring (tempstr, &date);
-  printf ("%s\n", tempstr);
-
-  slg_date_set_int (&date, 7, 4, 2014);
-  slg_date_to_string (tempstr, &date);
-  printf ("%s\n", tempstr);
-  slg_date_to_fstring (tempstr, &date);
-  printf ("%s\n", tempstr);
-
-  slg_date_set_int (&date, 23, 11, 2014);
-  slg_date_to_string (tempstr, &date);
-  printf ("%s\n", tempstr);
-  slg_date_to_fstring (tempstr, &date);
-  printf ("%s\n", tempstr);
+//  date.y = 0;
+//  date.m = 0;
+//  date.d = 0;
+//
+//  slg_date_set_int (&date, 14, 1, 2020);
+//  slg_date_to_string (tempstr, &date);
+//  printf ("%s\n", tempstr);
+//  slg_date_to_fstring (tempstr, &date);
+//  printf ("%s\n", tempstr);
+//
+//  slg_date_set_int (&date, 7, 4, 2014);
+//  slg_date_to_string (tempstr, &date);
+//  printf ("%s\n", tempstr);
+//  slg_date_to_fstring (tempstr, &date);
+//  printf ("%s\n", tempstr);
+//
+//  slg_date_set_int (&date, 23, 11, 2014);
+//  slg_date_to_string (tempstr, &date);
+//  printf ("%s\n", tempstr);
+//  slg_date_to_fstring (tempstr, &date);
+//  printf ("%s\n", tempstr);
 
 //  k = slg_date_set_int (&date, 14,  1,  2104);
 //  printf ("%lu.%lu.%lu\n", (unsigned long) date.d, (unsigned long) date.m, (unsigned long) date.y);
@@ -235,7 +240,45 @@ int main (int argc, char *argv[])
 //  slg_rain2str (tempstr, 1, k);
 //  printf ("rain: \"%s\" (%lu)\n", tempstr, (unsigned long) k);
 
-//  k = slg_readdayfile (&wurst, "2021-12-26.txt", 2);
+  k = slg_readdayfile (&wurst, "2021-12-26w.txt", 2);
+  printf ("slg_readdayfile: %lu\n", (unsigned long) k);
+
+  k = slg_dtemper_read (&tempi, &wurst, 3);
+  printf ("slg_dtemper_read: %lu\n", (unsigned long) k);
+
+  k = slg_dtemper_indmax (&tempi);
+  printf ("slg_dtemper_indmax: %lu\n", (unsigned long) k);
+
+  slg_timeindex2str (tempstr, tempi.tmode, 0, k);
+  printf ("slg_timeindex2str: %s\n", tempstr);
+
+  slg_temper2str (tempstr, 1, tempi.val[k]);
+  printf ("slg_temper2str: %s\n", tempstr);
+
+
+//  printf ("========================\n");
+//  for (t=-999; t < 1000; t++) {
+//    slg_temper2str (tempstr, 0, t);
+//    r = slg_str2temper (tempstr);
+//    printf ("%i -> %s -> %i ", t, tempstr, r);
+//    if (t == r) printf ("-> OK!\n");
+//    else printf ("-> FEHLER!\n");
+//  }
+//  printf ("========================\n");
+
+
+
+//  printf ("========================\n");
+//  for (k=0; k < 2000; k++) {
+//    slg_rain2str (tempstr, 0, k);
+//    i = slg_str2rain (tempstr);
+//    printf ("%u -> %s -> %u ", k, tempstr, i);
+//    if (k == i) printf ("-> OK!\n");
+//    else printf ("-> FEHLER!\n");
+//  }
+//  printf ("========================\n");
+
+
 //  printf ("read return: %lu\n", (unsigned long) k);
 //  if (k == 0) {
 //    printf ("empty lines: %lu\n", (unsigned long) slg_cntemptylines (&wurst));
@@ -262,13 +305,6 @@ int main (int argc, char *argv[])
 //  k = slg_writedayfile ("2021-12-26_neu.txt", &wurst, 1);
 //  printf ("read return (write dayfile): %lu\n", (unsigned long) k);
 
-
-//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.0"));
-//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.00"));
-//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.4"));
-//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("0.50"));
-//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("20.0"));
-//  printf ("v1: %lu\n", (unsigned long) slg_str2rain ("87.75"));
 
   return (0);
 }
