@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 17.10.2020
- * updated  : 29.12.2021
+ * updated  : 13.01.2022
  *
  **************************************************************************************************/
 
@@ -91,7 +91,7 @@ int32_t slg_str2int32 (char *str)
     if ((str[i] < 0x30) || (str[i] > 0x39)) return (CNERR);
   }
 
-  r = sscanf(str, "%li", &k);
+  r = sscanf(str, "%ld", &k);
 
   if (r != 1) return (CNERR);
 
