@@ -4,9 +4,11 @@
  * function : functions to read simple options from command line tool call
  * author   : Jochen Ertel
  * created  : 31.08.2016
- * updated  : 27.12.2021
+ * updated  : 10.01.2022
  *
  **************************************************************************************************/
+
+#include <stdint.h>
 
 #ifndef _options_h
 #define _options_h
