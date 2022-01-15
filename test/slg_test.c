@@ -256,6 +256,25 @@ int main (int argc, char *argv[])
   printf ("slg_temper2str: %s\n", tempstr);
 
 
+  k = slg_dtemper_indmin (&tempi);
+  printf ("slg_dtemper_indmin: %lu\n", (unsigned long) k);
+
+  slg_timeindex2str (tempstr, tempi.tmode, 0, k);
+  printf ("slg_timeindex2str: %s\n", tempstr);
+
+  slg_temper2str (tempstr, 1, tempi.val[k]);
+  printf ("slg_temper2str: %s\n", tempstr);
+
+
+  slg_temper2str (tempstr, 1, slg_dtemper_average(&tempi));
+  printf ("slg_dtemper_average: %s\n", tempstr);
+
+  slg_temper2str (tempstr, 1, slg_dtemper_maxindayout30(&tempi, &wurst.date));
+  printf ("slg_dtemper_maxindayout30: %s\n", tempstr);
+
+
+
+
 //  printf ("========================\n");
 //  for (t=-999; t < 1000; t++) {
 //    slg_temper2str (tempstr, 0, t);

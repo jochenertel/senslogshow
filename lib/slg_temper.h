@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 09.01.2022
- * updated  : 09.01.2022
+ * updated  : 15.01.2022
  *
  **************************************************************************************************/
 
@@ -31,6 +31,7 @@ typedef struct {
   uint32_t  tmode;             /* time_mode */
   uint32_t  tlen;              /* array length, dependent from tmode only */
   uint32_t  last;              /* last index (last mline in related dayfile) */
+  char      name[50];          /* name of temperature */
   int32_t   val[MAX_MLN_NUM];  /* temperature values */
 } slg_dtemper;
 
@@ -67,6 +68,49 @@ uint32_t slg_dtemper_read (slg_dtemper *dtemper, slg_daydata *daydata, uint32_t 
  *
  ****************************************************************************************/
 uint32_t slg_dtemper_indmax (slg_dtemper *dtemper);
+
+
+/* finds index of min. temperature value
+ * -> finds the newest one if there are more than one minimums
+ * -> if all temperature values are invalid index 0 is returned
+ *
+ * parameters:
+ *   *dtemper:  day temperature object
+ *
+ * return value:
+ *       ind :  index of min. temperature value
+ *
+ ****************************************************************************************/
+uint32_t slg_dtemper_indmin (slg_dtemper *dtemper);
+
+
+/* calculates average temperature of a day
+ *
+ * parameters:
+ *   *dtemper:  day temperature object
+ *
+ * return value:
+ *   atemper :  average temperature T*10
+ *
+ ****************************************************************************************/
+int32_t slg_dtemper_average (slg_dtemper *dtemper);
+
+
+/* calculates max. temperature for 30 degree diagram
+ * -> first rule: max. temp depends on date only
+ * -> second rule: if a temperature value is out of range, max. temper. is adapted
+ *
+ * parameters:
+ *   *dtemper:  day temperature object
+ *   *date   :  date
+ *
+ * return value:
+ *   atemper :  average temperature T*10
+ *
+ ****************************************************************************************/
+int32_t slg_dtemper_maxindayout30 (slg_dtemper *dtemper, slg_date *date);
+
+
 
 
 
