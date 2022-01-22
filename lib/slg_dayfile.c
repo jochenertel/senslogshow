@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 09.01.2022
+ * updated  : 22.01.2022
  *
  **************************************************************************************************/
 
@@ -767,7 +767,10 @@ int32_t slg_gettemperval (slg_daydata *daydata, uint32_t c, uint32_t k)
 
   if (k >= slg_timeindexnum(daydata->tmode)) return (CNERR);
 
-  slg_mlgetval (stmp, daydata->msrline[k], c);
+  if (daydata->msrline[k][0] != 0x00)
+    slg_mlgetval (stmp, daydata->msrline[k], c);
+  else
+    return (CNERR);
 
   return (slg_str2temper(stmp));
 }
@@ -791,7 +794,10 @@ uint32_t slg_getrainval (slg_daydata *daydata, uint32_t c, uint32_t k)
 
   if (k >= slg_timeindexnum(daydata->tmode)) return (CNERR);
 
-  slg_mlgetval (stmp, daydata->msrline[k], c);
+  if (daydata->msrline[k][0] != 0x00)
+    slg_mlgetval (stmp, daydata->msrline[k], c);
+  else
+    return (CNERR);
 
   return (slg_str2rain(stmp));
 }
