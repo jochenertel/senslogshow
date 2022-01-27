@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 15.01.2022
- * updated  : 23.01.2022
+ * updated  : 27.01.2022
  *
  **************************************************************************************************/
 
@@ -21,7 +21,7 @@
 #include "../../lib/slg_rain.h"
 
 
-#define VERSION "legacy senslog html page generation tool (version 0.2.0)"
+#define VERSION "legacy senslog html page generation tool (version 0.2.1)"
 
 
 /***************************************************************************************************
@@ -68,6 +68,7 @@ void gen_error (char *fname, uint32_t e)
   fprintf (fpw, "  <meta http-equiv=\"content-language\" content=\"de\">\n");
   fprintf (fpw, "  <meta name=\"author\" content=\"Jochen Ertel\">\n");
   fprintf (fpw, "  <meta name=\"description\" content=\"Tages-Wetter\">\n");
+  fprintf (fpw, "  <meta name=\"generator\" content=\"" VERSION "\">\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "  <title>Tages-Wetter</title>\n");
   fprintf (fpw, "\n");
@@ -82,7 +83,7 @@ void gen_error (char *fname, uint32_t e)
   fprintf (fpw, "    #rahmen {\n");
   fprintf (fpw, "      position: relative;\n");
   fprintf (fpw, "      width: 640px;\n");
-  fprintf (fpw, "      background: #FFC78F;\n");
+  fprintf (fpw, "      background: #CCCCCC;\n");
   fprintf (fpw, "      margin: 20px auto;\n");
   fprintf (fpw, "      padding: 20px;\n");
   fprintf (fpw, "      border: 0px;\n");
@@ -212,6 +213,7 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "  <meta http-equiv=\"content-language\" content=\"de\">\n");
   fprintf (fpw, "  <meta name=\"author\" content=\"Jochen Ertel\">\n");
   fprintf (fpw, "  <meta name=\"description\" content=\"Tages-Wetter\">\n");
+  fprintf (fpw, "  <meta name=\"generator\" content=\"" VERSION "\">\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "  <title>Tages-Wetter</title>\n");
   fprintf (fpw, "\n");
@@ -791,6 +793,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "  <meta http-equiv=\"content-language\" content=\"de\">\n");
   fprintf (fpw, "  <meta name=\"author\" content=\"Jochen Ertel\">\n");
   fprintf (fpw, "  <meta name=\"description\" content=\"Tages-Wetter\">\n");
+  fprintf (fpw, "  <meta name=\"generator\" content=\"" VERSION "\">\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "  <title>Tages-Wetter</title>\n");
   fprintf (fpw, "\n");
@@ -805,7 +808,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "    #rahmen {\n");
   fprintf (fpw, "      position: relative;\n");
   fprintf (fpw, "      width: 640px;\n");
-  fprintf (fpw, "      background: #FFC78F;\n");
+  fprintf (fpw, "      background: #AAEECC;\n");
   fprintf (fpw, "      margin: 20px auto;\n");
   fprintf (fpw, "      padding: 20px;\n");
   fprintf (fpw, "      border: 0px;\n");
@@ -915,10 +918,10 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "      color: #777777;\n");
   fprintf (fpw, "    }\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "    a:link {color:#8f542c;text-decoration:none;}\n");
-  fprintf (fpw, "    a:visited {color:#8f542c;text-decoration:none;}\n");
-  fprintf (fpw, "    a:hover {color:#d98347;text-decoration:none;}\n");
-  fprintf (fpw, "    a:active {color:#d98347;text-decoration:none;}\n");
+  fprintf (fpw, "    a:link {color:#22aa66;text-decoration:none;}\n");
+  fprintf (fpw, "    a:visited {color:#22aa66;text-decoration:none;}\n");
+  fprintf (fpw, "    a:hover {color:#00aa00;text-decoration:none;}\n");
+  fprintf (fpw, "    a:active {color:#00aa00;text-decoration:none;}\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "  </style>\n");
   fprintf (fpw, "</head>\n");
@@ -1218,7 +1221,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   }
   fprintf (fpw, "];\n");
 
-  fprintf (fpw, "      draw_temp (\"diagrammi\", grafzeit, graftemp, %d, \"#FF0066\");\n", (int) diamax);
+  fprintf (fpw, "      draw_temp (\"diagrammi\", grafzeit, graftemp, %d, \"#FF3030\");\n", (int) diamax);
 
   fprintf (fpw, "    </script>\n");
 
