@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 15.01.2022
- * updated  : 27.01.2022
+ * updated  : 14.10.2023
  *
  **************************************************************************************************/
 
@@ -21,7 +21,7 @@
 #include "../../lib/slg_rain.h"
 
 
-#define VERSION "legacy senslog html page generation tool (version 0.2.1)"
+#define VERSION "legacy senslog html page generation tool (version 0.3.0)"
 
 
 /***************************************************************************************************
@@ -313,7 +313,7 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "      padding: 0px;\n");
   fprintf (fpw, "      font-family: Arial, Helvetica, sans-serif;\n");
   fprintf (fpw, "      font-style: normal;\n");
-  fprintf (fpw, "      font-size: 3em;\n");
+  fprintf (fpw, "      font-size: 2em;\n");
   fprintf (fpw, "      font-weight:normal;\n");
   fprintf (fpw, "      color: #777777;\n");
   fprintf (fpw, "    }\n");
@@ -357,6 +357,16 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "    <div class=\"widget\">\n");
   fprintf (fpw, "      <table class=\"wid\">\n");
   fprintf (fpw, "        <tr>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Minimum</p></td>\n");
+  if (m == 0) {
+    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Aktuell</p></td>\n");
+  }
+  else {
+    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Mittel</p></td>\n");
+  }
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Maximum</p></td>\n");
+  fprintf (fpw, "        </tr>\n");
+  fprintf (fpw, "        <tr>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmin);
   if (m == 0) {
     fprintf (fpw, "          <td class=\"wid\"><p class=\"p0\">%s &deg;C</p></td>\n", stcur);
@@ -367,14 +377,14 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmax);
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "        <tr>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Min.: %s Uhr</p></td>\n", stimmin);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">%s Uhr</p></td>\n", stimmin);
   if (m == 0) {
-    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Aktuell: %s Uhr</p></td>\n", stimcur);
+    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">%s Uhr</p></td>\n", stimcur);
   }
   else {
-    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Mittel</p></td>\n");
+    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">&nbsp;</p></td>\n");
   }
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Max.: %s Uhr</p></td>\n", stimmax);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">%s Uhr</p></td>\n", stimmax);
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "      </table>\n");
   fprintf (fpw, "    </div>\n");
@@ -388,14 +398,14 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "    <div class=\"widget\">\n");
   fprintf (fpw, "      <table class=\"wid\">\n");
   fprintf (fpw, "        <tr>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">&nbsp;</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s mm</p></td>\n", srsum);
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">&nbsp;</p></td>\n");
-  fprintf (fpw, "        </tr>\n");
-  fprintf (fpw, "        <tr>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">&nbsp;</p></td>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Regen Tagessumme</p></td>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">&nbsp;</p></td>\n");
+  fprintf (fpw, "        </tr>\n");
+  fprintf (fpw, "        <tr>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">&nbsp;</p></td>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p0\">%s mm</p></td>\n", srsum);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">&nbsp;</p></td>\n");
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "      </table>\n");
   fprintf (fpw, "    </div>\n");
@@ -413,13 +423,13 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   if (m == 1) {
     fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
     fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Heute</a></p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Tag vor</a></p></td>\n");
   }
 
   if (m == 2) {
     fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Tag vor</a></p></td>\n", sdateinc);
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Heute</a></p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"%s.html\">Tag vor</a></p></td>\n", sdateinc);
   }
 
   fprintf (fpw, "      </tr>\n");
@@ -517,14 +527,14 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "\n");
   fprintf (fpw, "        // Achsen beschriften -----------------------------------------------------------\n");
   fprintf (fpw, "        if (zeit == \"winter\") {\n");
-  fprintf (fpw, "          var zeitachse = [\"00:00\", \"03:00\", \"06:00\", \"09:00\", \"12:00\", \"15:00\", \"18:00\", \"21:00\", \"00:00\"];\n");
+  fprintf (fpw, "          var zeitachse = [\"00:00\", \"03:00\", \"06:00\", \"09:00\", \"12:00\", \"15:00\", \"18:00\", \"21:00\", \"24:00\"];\n");
   fprintf (fpw, "        }\n");
   fprintf (fpw, "        if (zeit == \"sommer\") {\n");
-  fprintf (fpw, "          var zeitachse = [\"01:00\", \"04:00\", \"07:00\", \"10:00\", \"13:00\", \"16:00\", \"19:00\", \"22:00\", \"01:00\"];\n");
+  fprintf (fpw, "          var zeitachse = [\"01:00\", \"04:00\", \"07:00\", \"10:00\", \"13:00\", \"16:00\", \"19:00\", \"22:00\", \"25:00\"];\n");
   fprintf (fpw, "        }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        ctx.fillStyle = \"#777777\";\n");
-  fprintf (fpw, "        ctx.font = '15px Arial';\n");
+  fprintf (fpw, "        ctx.font = '16px Arial';\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        // Zeitachse\n");
   fprintf (fpw, "        ctx.textAlign=\"center\";\n");
@@ -542,6 +552,7 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "\n");
   fprintf (fpw, "        // Niederschlagsachse\n");
   fprintf (fpw, "        if (ns == 1) {\n");
+  fprintf (fpw, "          ctx.fillStyle = \"#88BBFF\";\n");
   fprintf (fpw, "          var nsachse = [\"3.0\", \"2.5\", \"2.0\", \"1.5\", \"1.0\", \"0.5\", \"0.0\"];\n");
   fprintf (fpw, "          ctx.textAlign=\"left\";\n");
   fprintf (fpw, "          ctx.textBaseline=\"middle\";\n");
@@ -714,8 +725,8 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   }
   fprintf (fpw, "];\n");
 
-  fprintf (fpw, "      draw_ns (\"diagrammi\", grafzeit, grafns, \"#4477FF\");\n");
-  fprintf (fpw, "      draw_temp (\"diagrammi\", grafzeit, graftemp, %d, \"#FF0000\");\n", (int) diamax);
+  fprintf (fpw, "      draw_ns (\"diagrammi\", grafzeit, grafns, \"#88BBFF\");\n");
+  fprintf (fpw, "      draw_temp (\"diagrammi\", grafzeit, graftemp, %d, \"#FF3030\");\n", (int) diamax);
 
   fprintf (fpw, "    </script>\n");
 
@@ -893,7 +904,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "      padding: 0px;\n");
   fprintf (fpw, "      font-family: Arial, Helvetica, sans-serif;\n");
   fprintf (fpw, "      font-style: normal;\n");
-  fprintf (fpw, "      font-size: 3em;\n");
+  fprintf (fpw, "      font-size: 2em;\n");
   fprintf (fpw, "      font-weight:normal;\n");
   fprintf (fpw, "      color: #777777;\n");
   fprintf (fpw, "    }\n");
@@ -937,6 +948,16 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "    <div class=\"widget\">\n");
   fprintf (fpw, "      <table class=\"wid\">\n");
   fprintf (fpw, "        <tr>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Minimum</p></td>\n");
+  if (m == 0) {
+    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Aktuell</p></td>\n");
+  }
+  else {
+    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Mittel</p></td>\n");
+  }
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Maximum</p></td>\n");
+  fprintf (fpw, "        </tr>\n");
+  fprintf (fpw, "        <tr>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmin);
   if (m == 0) {
     fprintf (fpw, "          <td class=\"wid\"><p class=\"p0\">%s &deg;C</p></td>\n", stcur);
@@ -947,14 +968,14 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmax);
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "        <tr>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Min.: %s Uhr</p></td>\n", stimmin);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">%s Uhr</p></td>\n", stimmin);
   if (m == 0) {
-    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Aktuell: %s Uhr</p></td>\n", stimcur);
+    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">%s Uhr</p></td>\n", stimcur);
   }
   else {
-    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Mittel</p></td>\n");
+    fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">&nbsp;</p></td>\n");
   }
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Max.: %s Uhr</p></td>\n", stimmax);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">%s Uhr</p></td>\n", stimmax);
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "      </table>\n");
   fprintf (fpw, "    </div>\n");
@@ -977,13 +998,13 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   if (m == 1) {
     fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
     fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Heute</a></p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Tag vor</a></p></td>\n");
   }
 
   if (m == 2) {
     fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Tag vor</a></p></td>\n", sdateinc);
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Heute</a></p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"%s.html\">Tag vor</a></p></td>\n", sdateinc);
   }
 
   fprintf (fpw, "      </tr>\n");
@@ -1081,14 +1102,14 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "\n");
   fprintf (fpw, "        // Achsen beschriften -----------------------------------------------------------\n");
   fprintf (fpw, "        if (zeit == \"winter\") {\n");
-  fprintf (fpw, "          var zeitachse = [\"00:00\", \"03:00\", \"06:00\", \"09:00\", \"12:00\", \"15:00\", \"18:00\", \"21:00\", \"00:00\"];\n");
+  fprintf (fpw, "          var zeitachse = [\"00:00\", \"03:00\", \"06:00\", \"09:00\", \"12:00\", \"15:00\", \"18:00\", \"21:00\", \"24:00\"];\n");
   fprintf (fpw, "        }\n");
   fprintf (fpw, "        if (zeit == \"sommer\") {\n");
-  fprintf (fpw, "          var zeitachse = [\"01:00\", \"04:00\", \"07:00\", \"10:00\", \"13:00\", \"16:00\", \"19:00\", \"22:00\", \"01:00\"];\n");
+  fprintf (fpw, "          var zeitachse = [\"01:00\", \"04:00\", \"07:00\", \"10:00\", \"13:00\", \"16:00\", \"19:00\", \"22:00\", \"25:00\"];\n");
   fprintf (fpw, "        }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        ctx.fillStyle = \"#777777\";\n");
-  fprintf (fpw, "        ctx.font = '15px Arial';\n");
+  fprintf (fpw, "        ctx.font = '16px Arial';\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        // Zeitachse\n");
   fprintf (fpw, "        ctx.textAlign=\"center\";\n");
@@ -1106,6 +1127,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "\n");
   fprintf (fpw, "        // Niederschlagsachse\n");
   fprintf (fpw, "        if (ns == 1) {\n");
+  fprintf (fpw, "          ctx.fillStyle = \"#88BBFF\";\n");
   fprintf (fpw, "          var nsachse = [\"3.0\", \"2.5\", \"2.0\", \"1.5\", \"1.0\", \"0.5\", \"0.0\"];\n");
   fprintf (fpw, "          ctx.textAlign=\"left\";\n");
   fprintf (fpw, "          ctx.textBaseline=\"middle\";\n");
