@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 09.01.2022
- * updated  : 23.01.2022
+ * updated  : 05.11.2023
  *
  **************************************************************************************************/
 
@@ -36,6 +36,13 @@ typedef struct {
 } slg_dtemper;
 
 
+/* month temperature array */
+typedef struct {
+  uint32_t     dvalid[31];     /* 0: day does not exist, 1: day exists */
+  slg_dtemper  dtemper[31];    /* array of day temper objects */
+} slg_mtemper;
+
+
 
 /* day related functions **************************************************************************/
 /**************************************************************************************************/
@@ -56,18 +63,17 @@ typedef struct {
 uint32_t slg_dtemper_read (slg_dtemper *dtemper, slg_daydata *daydata, uint32_t id);
 
 
-/* finds index of max. temperature value
- * -> finds the newest one if there are more than one maximums
- * -> if all temperature values are invalid index 0 is returned
+/* check if at least one valid temperature value exist
  *
  * parameters:
  *   *dtemper:  day temperature object
  *
  * return value:
- *       ind :  index of max. temperature value
+ *         0 :  valid temperature values exist
+ *         1 :  error: no valid temperature values found
  *
  ****************************************************************************************/
-uint32_t slg_dtemper_indmax (slg_dtemper *dtemper);
+int32_t slg_dtemper_checkvalid (slg_dtemper *dtemper);
 
 
 /* finds index of min. temperature value
@@ -82,6 +88,20 @@ uint32_t slg_dtemper_indmax (slg_dtemper *dtemper);
  *
  ****************************************************************************************/
 uint32_t slg_dtemper_indmin (slg_dtemper *dtemper);
+
+
+/* finds index of max. temperature value
+ * -> finds the newest one if there are more than one maximums
+ * -> if all temperature values are invalid index 0 is returned
+ *
+ * parameters:
+ *   *dtemper:  day temperature object
+ *
+ * return value:
+ *       ind :  index of max. temperature value
+ *
+ ****************************************************************************************/
+uint32_t slg_dtemper_indmax (slg_dtemper *dtemper);
 
 
 /* calculates average temperature of a day
@@ -134,6 +154,78 @@ uint32_t slg_dtemper_merge_2 (slg_dtemper *dtemper, char *name,
                               slg_dtemper *dtemper1, uint32_t invwind1b, uint32_t invwind1e,
                               slg_dtemper *dtemper2, uint32_t invwind2b, uint32_t invwind2e);
 
+
+
+/* month related functions ************************************************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+/* read all temperature values of an id from all valid days of a month
+ *
+ * parameters:
+ *   *mtemper  :  month temperature object
+ *   *monthdata:  monthdata object
+ *   id        :  temperature column id in daydata files
+ *
+ * return value:
+ *         0 :  successfull
+ *         1 :  error, invalid id or id is not temperature
+ *
+ ****************************************************************************************/
+uint32_t slg_mtemper_read (slg_mtemper *mtemper, slg_monthdata *monthdata, uint32_t id);
+
+
+/* check if at least one valid temperature value exist in month
+ *
+ * parameters:
+ *   *mtemper:  month temperature object
+ *
+ * return value:
+ *         0 :  valid temperature values in month exist
+ *         1 :  error: no valid temperature values found
+ *
+ ****************************************************************************************/
+int32_t slg_mtemper_checkvalid (slg_mtemper *mtemper);
+
+
+/* finds day of min. temperature value in month
+ * -> finds the newest one if there are more than one minimums
+ * -> if all temperature values of month are invalid day 0 is returned
+ *
+ * parameters:
+ *   *mtemper:  month temperature object
+ *
+ * return value:
+ *       day :  day number (1..31) or invalid (0)
+ *
+ ****************************************************************************************/
+uint32_t slg_mtemper_daymin (slg_mtemper *mtemper);
+
+
+/* finds day of max. temperature value in month
+ * -> finds the newest one if there are more than one maximums
+ * -> if all temperature values of month are invalid day 0 is returned
+ *
+ * parameters:
+ *   *mtemper:  month temperature object
+ *
+ * return value:
+ *       day :  day number (1..31) or invalid (0)
+ *
+ ****************************************************************************************/
+uint32_t slg_mtemper_daymax (slg_mtemper *mtemper);
+
+
+/* calculates average temperature of a month
+ *
+ * parameters:
+ *   *mtemper:  month temperature object
+ *
+ * return value:
+ *   atemper :  average temperature T*10
+ *
+ ****************************************************************************************/
+int32_t slg_mtemper_average (slg_mtemper *mtemper);
 
 
 #endif

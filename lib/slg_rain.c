@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 15.01.2022
- * updated  : 15.01.2022
+ * updated  : 05.11.2023
  *
  **************************************************************************************************/
 
@@ -83,4 +83,72 @@ uint32_t slg_drain_sum (slg_drain *drain)
 
   return (res);
 }
+
+
+
+/* month related functions ************************************************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+/* read all rain values of an id from all valid days of a month
+ *
+ * parameters:
+ *   *mrain    :  month rain object
+ *   *monthdata:  monthdata object
+ *   id        :  rain column id in daydata files
+ *
+ * return value:
+ *         0 :  successfull
+ *         1 :  error, invalid id or id is not rain
+ *
+ ****************************************************************************************/
+uint32_t slg_mrain_read (slg_mrain *mrain, slg_monthdata *monthdata, uint32_t id)
+{
+  uint32_t i, res;
+
+  for (i=0; i < 31; i++) {
+    if (monthdata->dvalid[i]) {
+      res = slg_drain_read (&mrain->drain[i], &monthdata->daydata[i], id);
+      if (res == 1) return (1);
+      mrain->dvalid[i] = 1;
+    }
+    else {
+      mrain->dvalid[i] = 0;
+    }
+  }
+
+  return (0);
+}
+
+
+/* calculates rain sum of a month
+ *
+ * parameters:
+ *   *mrain:  month rain object
+ *
+ * return value:
+ *   srain :  sum rain*100
+ *
+ ****************************************************************************************/
+uint32_t slg_mrain_sum (slg_mrain *mrain)
+{
+  uint32_t i, res;
+
+  /* calculate sum */
+  res = 0;
+
+  for (i = 0; i < 31; i++) {
+    if (mrain->dvalid[i]) {
+      res += slg_drain_sum (&mrain->drain[i]);
+    }
+  }
+
+  return (res);
+}
+
+
+
+
+
+
 

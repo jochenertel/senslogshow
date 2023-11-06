@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 09.01.2022
+ * updated  : 03.11.2023
  *
  **************************************************************************************************/
 
@@ -48,6 +48,18 @@ typedef struct {
 
   char      msrline[MAX_MLN_NUM][MAX_MLN_LEN];  /* measure value lines */
 } slg_daydata;
+
+
+/* month structure (is completely private) */
+typedef struct {
+  uint32_t     locid;                           /* location id */
+  char         locstr[50];                      /* location string */
+  uint32_t     tmode;                           /* time_mode */
+  slg_date     date;                            /* date of first day of month */
+
+  uint32_t     dvalid[31];                      /* 0: day does not exist, 1: day exists */
+  slg_daydata  daydata[31];                     /* array of day data */
+} slg_monthdata;
 
 
 
@@ -207,6 +219,58 @@ int32_t slg_gettemperval (slg_daydata *daydata, uint32_t c, uint32_t k);
  *
  ****************************************************************************************/
 uint32_t slg_getrainval (slg_daydata *daydata, uint32_t c, uint32_t k);
+
+
+
+/* read month data ********************************************************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+
+/* reads a all dayfiles of a month into a monthdata structure
+ * - dayfile names are assumed to be in format "yyyy-mm-dd.txt"
+ *
+ * parameters:
+ *   *monthdata: target mothdata structure
+ *   *pathname:  path name of dayfiles to read (incl. '/') or empty string
+ *   hmode:      0: normal header in dayfiles
+ *               1: no header in dayfiles (assumed Bretnig: TEMP RAIN)
+ *               2: no header in dayfiles (assumed Dresden: TEMP TEMP TEMP)
+ *
+ * return value:
+ *    0 :  operation successfull
+ *    1 :  error: invalid parameter (month, year, hmode)
+ *    2 :  error: not even one dayfile found
+ *    3 :  error: dayfiles have not the same location id
+ *    4 :  error: dayfiles have not the same time mode
+ *    100*day+dayerror:
+ *       -> errorcode / 100: error in dayfile of day (1...31)
+ *       -> errorcode % 100: errorcode of dayfile (2...15)
+ *
+ ****************************************************************************************/
+uint32_t slg_readmonth (slg_monthdata *monthdata, char *pathname,
+                        uint32_t year, uint32_t month, uint32_t hmode);
+
+
+
+/* month checker functions ************************************************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+
+/* checks if a column of a special typ and id exists in all existing dayfiles of month
+ *
+ * parameters:
+ *   *monthdata : mothdata object
+ *   typ        : column typ
+ *   id         : column id
+ *
+ * return value:
+ *         0 :  column with typ and id does not exist in all dayfiles of month
+ *         1 :  column with typ and id exists in all existing dayfiles of month
+ *
+ ****************************************************************************************/
+uint32_t slg_colexist_month (slg_monthdata *monthdata, uint32_t typ, uint32_t id);
 
 
 

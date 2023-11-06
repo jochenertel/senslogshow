@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 09.01.2022
- * updated  : 23.01.2022
+ * updated  : 05.11.2023
  *
  **************************************************************************************************/
 
@@ -59,42 +59,28 @@ uint32_t slg_dtemper_read (slg_dtemper *dtemper, slg_daydata *daydata, uint32_t 
 }
 
 
-/* finds index of max. temperature value
- * -> finds the newest one if there are more than one maximums
- * -> if all temperature values are invalid index 0 is returned
+/* check if at least one valid temperature value exist
  *
  * parameters:
  *   *dtemper:  day temperature object
  *
  * return value:
- *       ind :  index of max. temperature value
+ *         0 :  valid temperature values exist
+ *         1 :  error: no valid temperature values found
  *
  ****************************************************************************************/
-uint32_t slg_dtemper_indmax (slg_dtemper *dtemper)
+int32_t slg_dtemper_checkvalid (slg_dtemper *dtemper)
 {
-  uint32_t i, ind;
-  int32_t  max;
+  uint32_t i;
 
   /* check if all values are invalid */
   i = 0;
   while ((dtemper->val[i] == CNERR) && (i != (dtemper->tlen - 1))) {
     i++;
   }
-  if (dtemper->val[i] == CNERR) return (0);
+  if (dtemper->val[i] == CNERR) return (1);
 
-  /* find maximum */
-  max = - CNERR;
-
-  for (i = 0; i < dtemper->tlen; i++) {
-    if (dtemper->val[i] != CNERR) {
-      if (dtemper->val[i] >= max) {
-        ind = i;
-        max = dtemper->val[i];
-      }
-    }
-  }
-
-  return (ind);
+  return (0);
 }
 
 
@@ -111,15 +97,12 @@ uint32_t slg_dtemper_indmax (slg_dtemper *dtemper)
  ****************************************************************************************/
 uint32_t slg_dtemper_indmin (slg_dtemper *dtemper)
 {
-  uint32_t i, ind;
+  uint32_t i, ind, res;
   int32_t  min;
 
   /* check if all values are invalid */
-  i = 0;
-  while ((dtemper->val[i] == CNERR) && (i != (dtemper->tlen - 1))) {
-    i++;
-  }
-  if (dtemper->val[i] == CNERR) return (0);
+  res = slg_dtemper_checkvalid (dtemper);
+  if (res == 1) return (0);
 
   /* find minimum */
   min = CNERR;
@@ -129,6 +112,42 @@ uint32_t slg_dtemper_indmin (slg_dtemper *dtemper)
       if (dtemper->val[i] <= min) {
         ind = i;
         min = dtemper->val[i];
+      }
+    }
+  }
+
+  return (ind);
+}
+
+
+/* finds index of max. temperature value
+ * -> finds the newest one if there are more than one maximums
+ * -> if all temperature values are invalid index 0 is returned
+ *
+ * parameters:
+ *   *dtemper:  day temperature object
+ *
+ * return value:
+ *       ind :  index of max. temperature value
+ *
+ ****************************************************************************************/
+uint32_t slg_dtemper_indmax (slg_dtemper *dtemper)
+{
+  uint32_t i, ind, res;
+  int32_t  max;
+
+  /* check if all values are invalid */
+  res = slg_dtemper_checkvalid (dtemper);
+  if (res == 1) return (0);
+
+  /* find maximum */
+  max = - CNERR;
+
+  for (i = 0; i < dtemper->tlen; i++) {
+    if (dtemper->val[i] != CNERR) {
+      if (dtemper->val[i] >= max) {
+        ind = i;
+        max = dtemper->val[i];
       }
     }
   }
@@ -148,15 +167,12 @@ uint32_t slg_dtemper_indmin (slg_dtemper *dtemper)
  ****************************************************************************************/
 int32_t slg_dtemper_average (slg_dtemper *dtemper)
 {
-  uint32_t i;
+  uint32_t i, res;
   int32_t  at, k;
 
   /* check if all values are invalid */
-  i = 0;
-  while ((dtemper->val[i] == CNERR) && (i != (dtemper->tlen - 1))) {
-    i++;
-  }
-  if (dtemper->val[i] == CNERR) return (CNERR);
+  res = slg_dtemper_checkvalid (dtemper);
+  if (res == 1) return (CNERR);
 
   /* calculate average */
   at = 0;
@@ -269,6 +285,189 @@ uint32_t slg_dtemper_merge_2 (slg_dtemper *dtemper, char *name,
   return (0);
 }
 
+
+
+/* month related functions ************************************************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+/* read all temperature values of an id from all valid days of a month
+ *
+ * parameters:
+ *   *mtemper  :  month temperature object
+ *   *monthdata:  monthdata object
+ *   id        :  temperature column id in daydata files
+ *
+ * return value:
+ *         0 :  successfull
+ *         1 :  error, invalid id or id is not temperature
+ *
+ ****************************************************************************************/
+uint32_t slg_mtemper_read (slg_mtemper *mtemper, slg_monthdata *monthdata, uint32_t id)
+{
+  uint32_t i, res;
+
+  for (i=0; i < 31; i++) {
+    if (monthdata->dvalid[i]) {
+      res = slg_dtemper_read (&mtemper->dtemper[i], &monthdata->daydata[i], id);
+      if (res == 1) return (1);
+      mtemper->dvalid[i] = 1;
+    }
+    else {
+      mtemper->dvalid[i] = 0;
+    }
+  }
+
+  return (0);
+}
+
+
+/* check if at least one valid temperature value exist in month
+ *
+ * parameters:
+ *   *mtemper:  month temperature object
+ *
+ * return value:
+ *         0 :  valid temperature values in month exist
+ *         1 :  error: no valid temperature values found
+ *
+ ****************************************************************************************/
+int32_t slg_mtemper_checkvalid (slg_mtemper *mtemper)
+{
+  uint32_t i, j, flag;
+
+  /* check if all values are invalid */
+  flag = 0;
+  i = 0;
+  while ((flag == 0) && (i < 31)) {
+    j = 0;
+    while ((mtemper->dtemper[i].val[j] == CNERR) && (i != (mtemper->dtemper[i].tlen - 1))) {
+      j++;
+    }
+    if (mtemper->dtemper[i].val[j] != CNERR) flag = 1;
+    i++;
+  }
+  if (flag == 0) return (1);
+
+  return (0);
+}
+
+
+/* finds day of min. temperature value in month
+ * -> finds the newest one if there are more than one minimums
+ * -> if all temperature values of month are invalid day 0 is returned
+ *
+ * parameters:
+ *   *mtemper:  month temperature object
+ *
+ * return value:
+ *       day :  day number (1..31) or invalid (0)
+ *
+ ****************************************************************************************/
+uint32_t slg_mtemper_daymin (slg_mtemper *mtemper)
+{
+  uint32_t res, i, ind, day;
+  int32_t  min;
+
+  /* check if there exist valid temperature values in month */
+  res = slg_mtemper_checkvalid (mtemper);
+  if (res == 1) return (0);
+
+  /* find maximum */
+  min = CNERR;
+  day = 0;
+
+  for (i = 0; i < 31; i++) {
+    if (mtemper->dvalid[i]) {
+      ind = slg_dtemper_indmin (&mtemper->dtemper[i]);
+      if (mtemper->dtemper[i].val[ind] != CNERR) {
+        if (mtemper->dtemper[i].val[ind] <= min) {
+          day = i + 1;  /* day range is (1..31) */
+          min = mtemper->dtemper[i].val[ind];
+        }
+      }
+    }
+  }
+
+  return (day);
+}
+
+
+/* finds day of max. temperature value in month
+ * -> finds the newest one if there are more than one maximums
+ * -> if all temperature values of month are invalid day 0 is returned
+ *
+ * parameters:
+ *   *mtemper:  month temperature object
+ *
+ * return value:
+ *       day :  day number (1..31) or invalid (0)
+ *
+ ****************************************************************************************/
+uint32_t slg_mtemper_daymax (slg_mtemper *mtemper)
+{
+  uint32_t res, i, ind, day;
+  int32_t  max;
+
+  /* check if there exist valid temperature values in month */
+  res = slg_mtemper_checkvalid (mtemper);
+  if (res == 1) return (0);
+
+  /* find maximum */
+  max = - CNERR;
+  day = 0;
+
+  for (i = 0; i < 31; i++) {
+    if (mtemper->dvalid[i]) {
+      ind = slg_dtemper_indmax (&mtemper->dtemper[i]);
+      if (mtemper->dtemper[i].val[ind] != CNERR) {
+        if (mtemper->dtemper[i].val[ind] >= max) {
+          day = i + 1;  /* day range is (1..31) */
+          max = mtemper->dtemper[i].val[ind];
+        }
+      }
+    }
+  }
+
+  return (day);
+}
+
+
+/* calculates average temperature of a month
+ *
+ * parameters:
+ *   *mtemper:  month temperature object
+ *
+ * return value:
+ *   atemper :  average temperature T*10
+ *
+ ****************************************************************************************/
+int32_t slg_mtemper_average (slg_mtemper *mtemper)
+{
+  uint32_t res, i, j;
+  int32_t  at, k;
+
+  /* check if there exist valid temperature values in month */
+  res = slg_mtemper_checkvalid (mtemper);
+  if (res == 1) return (CNERR);
+
+  /* calculate average */
+  at = 0;
+  k = 0;
+
+  for (i = 0; i < 31; i++) {
+    if (mtemper->dvalid[i]) {
+      for (j = 0; j < mtemper->dtemper[i].tlen; j++) {
+        if (mtemper->dtemper[i].val[j] != CNERR) {
+          at += mtemper->dtemper[i].val[j];
+          k++;
+        }
+      }
+    }
+  }
+
+  return (at / k);
+}
 
 
 
