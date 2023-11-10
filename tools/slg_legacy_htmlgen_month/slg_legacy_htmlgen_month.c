@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 31.10.2023
- * updated  : 06.11.2023
+ * updated  : 09.11.2023
  *
  **************************************************************************************************/
 
@@ -21,7 +21,7 @@
 #include "../../lib/slg_rain.h"
 
 
-#define VERSION "legacy senslog html month page generation tool (version 0.1.0)"
+#define VERSION "legacy senslog html month page generation tool (version 0.2.0)"
 
 
 /***************************************************************************************************
@@ -177,10 +177,8 @@ void gen_error (char *fname, uint32_t e)
 void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
 {
   FILE         *fpw;
-  char         c, smonth[20], sdaymin[20], sdaymax[20], srmsum[20], smonthdec[20], smonthinc[20], stavar[20], stmin[20], stmax[20], tstr[20];
+  char         c, smonth[20], srmsum[20], smonthdec[20], smonthinc[20], stavar[20], stmin[20], stmax[20], tstr[20];
   uint32_t     i, ind, day;
-  int32_t      diamaxt;
-  int32_t      thm[12] = {15, 15, 20, 25, 30, 35, 35, 35, 30, 25, 20, 15}; /* max. temperature of months */
   slg_date     tdate;
   slg_mtemper  mtemper;
   slg_mrain    mrain;
@@ -208,8 +206,6 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   slg_date_to_fstring (smonthinc, &tdate);
   smonthinc[7] = 0;  /* cut day */
 
-  diamaxt = thm[month->date.m - 1];
-
   /* calculate average, min and max temperatures ********************/
   slg_date_copy (&tdate, &month->date);
   slg_mtemper_read (&mtemper, month, 1);
@@ -218,24 +214,20 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
 
   day = slg_mtemper_daymin (&mtemper);
   if (day == 0) {
-    strcpy (sdaymin, "--.--.----");
     slg_temper2str (stmin, 0, CNERR);
   }
   else {
     tdate.d = day;
-    slg_date_to_string (sdaymin, &tdate);
     ind = slg_dtemper_indmin (&mtemper.dtemper[day-1]);
     slg_temper2str (stmin, 0, mtemper.dtemper[day-1].val[ind]);
   }
 
   day = slg_mtemper_daymax (&mtemper);
   if (day == 0) {
-    strcpy (sdaymax, "--.--.----");
     slg_temper2str (stmax, 0, CNERR);
   }
   else {
     tdate.d = day;
-    slg_date_to_string (sdaymax, &tdate);
     ind = slg_dtemper_indmax (&mtemper.dtemper[day-1]);
     slg_temper2str (stmax, 0, mtemper.dtemper[day-1].val[ind]);
   }
@@ -272,7 +264,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "      width: 640px;\n");
   fprintf (fpw, "      background: #FFC78F;\n");
   fprintf (fpw, "      margin: 20px auto;\n");
-  fprintf (fpw, "      padding: 20px;\n");
+  fprintf (fpw, "      padding: 10px 20px 10px 20px;\n");
   fprintf (fpw, "      border: 0px;\n");
   fprintf (fpw, "      border-radius: 10px;\n");
   fprintf (fpw, "      box-shadow: 10px 10px 10px silver;\n");
@@ -284,14 +276,14 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "      width: 640px;\n");
   fprintf (fpw, "      background: #FFFFFF;\n");
   fprintf (fpw, "      margin: 20px auto;\n");
-  fprintf (fpw, "      padding: 10px 0px 10px 0px;\n");
+  fprintf (fpw, "      padding: 10px 0px 0px 0px;\n");
   fprintf (fpw, "      border: 0px;\n");
   fprintf (fpw, "      border-radius: 10px;\n");
   fprintf (fpw, "      text-align: center;\n");
   fprintf (fpw, "    }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "    table.wid {\n");
-  fprintf (fpw, "      width: 639px;\n");
+  fprintf (fpw, "      width: 640px;\n");
   fprintf (fpw, "      margin: 0px 0px 0px 0px;\n");
   fprintf (fpw, "      padding: 0px;\n");
   fprintf (fpw, "      border-collapse:collapse;\n");
@@ -299,7 +291,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "    }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "    td.wid {\n");
-  fprintf (fpw, "      width: 213px;\n");
+  fprintf (fpw, "      width: 160px;\n");
   fprintf (fpw, "      margin: 0px;\n");
   fprintf (fpw, "      padding: 0px;\n");
   fprintf (fpw, "      border: 0px;\n");
@@ -309,7 +301,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "\n");
   fprintf (fpw, "    table.lnk {\n");
   fprintf (fpw, "      width: 639px;\n");
-  fprintf (fpw, "      margin: 20px 0px 0px 0px;\n");
+  fprintf (fpw, "      margin: 10px 0px 0px 0px;\n");
   fprintf (fpw, "      padding: 0px;\n");
   fprintf (fpw, "      border-collapse:collapse;\n");
   fprintf (fpw, "      border: 0px;\n");
@@ -392,52 +384,6 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
 
   fprintf (fpw, "<body>\n");
   fprintf (fpw, "  <div id=\"rahmen\">\n");
-  fprintf (fpw, "    <h1>%s</h1>\n", month->locstr);
-  fprintf (fpw, "\n");
-  fprintf (fpw, "    <p class=\"p0\">%s %lu</p>\n", smonth, (unsigned long) month->date.y);
-  fprintf (fpw, "    <p class=\"p2\">&nbsp;</p>\n");
-  fprintf (fpw, "\n");
-  fprintf (fpw, "    <div class=\"widget\">\n");
-  fprintf (fpw, "      <table class=\"wid\">\n");
-  fprintf (fpw, "        <tr>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Minimum</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Mittel</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Maximum</p></td>\n");
-  fprintf (fpw, "        </tr>\n");
-  fprintf (fpw, "        <tr>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmin);
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p0\">%s &deg;C</p></td>\n", stavar);
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmax);
-  fprintf (fpw, "        </tr>\n");
-  fprintf (fpw, "        <tr>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">%s</p></td>\n", sdaymin);
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">&nbsp;</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">%s</p></td>\n", sdaymax);
-  fprintf (fpw, "        </tr>\n");
-  fprintf (fpw, "      </table>\n");
-  fprintf (fpw, "    </div>\n");
-  fprintf (fpw, "\n");
-
-  fprintf (fpw, "    <div class=\"widget\">\n");
-  fprintf (fpw, "      <canvas id=\"diagrammi\" width=\"620\" height=\"360\"></canvas>\n");
-  fprintf (fpw, "    </div>\n");
-  fprintf (fpw, "\n");
-
-  fprintf (fpw, "    <div class=\"widget\">\n");
-  fprintf (fpw, "      <table class=\"wid\">\n");
-  fprintf (fpw, "        <tr>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">&nbsp;</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Regen Monatssumme</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">&nbsp;</p></td>\n");
-  fprintf (fpw, "        </tr>\n");
-  fprintf (fpw, "        <tr>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">&nbsp;</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p0\">%s mm</p></td>\n", srmsum);
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">&nbsp;</p></td>\n");
-  fprintf (fpw, "        </tr>\n");
-  fprintf (fpw, "      </table>\n");
-  fprintf (fpw, "    </div>\n");
-  fprintf (fpw, "\n");
 
   fprintf (fpw, "    <table class=\"lnk\">\n");
   fprintf (fpw, "      <tr>\n");
@@ -458,17 +404,44 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "    </table>\n");
   fprintf (fpw, "\n");
 
+  fprintf (fpw, "    <h1>%s</h1>\n", month->locstr);
+  fprintf (fpw, "\n");
+  fprintf (fpw, "    <p class=\"p0\">%s %lu</p>\n", smonth, (unsigned long) month->date.y);
+  fprintf (fpw, "\n");
+
+  fprintf (fpw, "    <div class=\"widget\">\n");
+  fprintf (fpw, "      <canvas id=\"diagrammi\" width=\"620\" height=\"560\"></canvas>\n");
+  fprintf (fpw, "    </div>\n");
+  fprintf (fpw, "\n");
+
+  fprintf (fpw, "    <div class=\"widget\">\n");
+  fprintf (fpw, "      <table class=\"wid\">\n");
+  fprintf (fpw, "        <tr>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Minimum</p></td>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Maximum</p></td>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Mittel</p></td>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Regensumme</p></td>\n");
+  fprintf (fpw, "        </tr>\n");
+  fprintf (fpw, "        <tr>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmin);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmax);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stavar);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s mm</p></td>\n", srmsum);
+  fprintf (fpw, "        </tr>\n");
+  fprintf (fpw, "      </table>\n");
+  fprintf (fpw, "    </div>\n");
+  fprintf (fpw, "\n");
+
   fprintf (fpw, "    <script>\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "      // ---------------------------------------------------------------------------------------------------\n");
   fprintf (fpw, "      // Diagramm zeichnen in einem canvas-Element: <canvas id=\"...\" width=\"620\" height=\"360\"></canvas>\n");
   fprintf (fpw, "      //\n");
   fprintf (fpw, "      // canvas_id   :  String der canvas Elemente-ID\n");
-  fprintf (fpw, "      // maxtemp     :  oberer Temperaturwert an Temperaturachse\n");
   fprintf (fpw, "      // ns          :  0: keine Niederschlagsachse\n");
   fprintf (fpw, "      //                1: Niederschlagsachse beschriften\n");
   fprintf (fpw, "      // ---------------------------------------------------------------------------------------------------\n");
-  fprintf (fpw, "      function draw_diagram (canvas_id, maxtemp, ns) {\n");
+  fprintf (fpw, "      function draw_diagram (canvas_id, ns) {\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        // interne Linien-zeichnen Funktionen -------------------------------------------\n");
   fprintf (fpw, "        function dd_line_h (px, py, l) {\n");
@@ -503,7 +476,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "\n");
   fprintf (fpw, "        ctx.translate(0.5, 0.5);  // Hack damit die Linien wirklich nur 1 px dick sind\n");
   fprintf (fpw, "        ctx.fillStyle = \"#FFFFFF\";\n");
-  fprintf (fpw, "        ctx.fillRect(0,0,620,360);\n");
+  fprintf (fpw, "        ctx.fillRect(0,0,620,560);\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        ctx.lineWidth = 1;\n");
   fprintf (fpw, "\n");
@@ -512,23 +485,40 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "        ctx.beginPath();\n");
   fprintf (fpw, "        ctx.strokeStyle=\"#AAAAAA\";\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "        for (j = 1; j < 6; j++) {\n");
+  fprintf (fpw, "        for (j = 1; j < 10; j++) {\n");
   fprintf (fpw, "          dd_line_hd (70, 20+j*50, 480);\n");
   fprintf (fpw, "        }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        for (j = 1; j < 7; j++) {\n");
-  fprintf (fpw, "          dd_line_vd (70+j*75, 20, 300);\n");
+  fprintf (fpw, "          dd_line_vd (70+j*75, 20, 500);\n");
   fprintf (fpw, "        }\n");
   fprintf (fpw, "        ctx.stroke();\n");
   fprintf (fpw, "\n");
+
+  fprintf (fpw, "        ctx.beginPath();\n");
+  fprintf (fpw, "        ctx.strokeStyle=\"#FF0000\";\n");
+  fprintf (fpw, "        dd_line_h (70, 20+150, 480);\n");
+  fprintf (fpw, "        ctx.stroke();\n");
+  fprintf (fpw, "\n");
+  fprintf (fpw, "        ctx.beginPath();\n");
+  fprintf (fpw, "        ctx.strokeStyle=\"#FF8C00\";\n");
+  fprintf (fpw, "        dd_line_h (70, 20+250, 480);\n");
+  fprintf (fpw, "        ctx.stroke();\n");
+  fprintf (fpw, "\n");
+  fprintf (fpw, "        ctx.beginPath();\n");
+  fprintf (fpw, "        ctx.strokeStyle=\"#0000FF\";\n");
+  fprintf (fpw, "        dd_line_h (70, 20+350, 480);\n");
+  fprintf (fpw, "        ctx.stroke();\n");
+  fprintf (fpw, "\n");
+
   fprintf (fpw, "        ctx.beginPath();\n");
   fprintf (fpw, "        ctx.strokeStyle=\"#777777\";\n");
-  fprintf (fpw, "        dd_line_h (70,20, 480);\n");
-  fprintf (fpw, "        dd_line_h (70,320, 480);\n");
-  fprintf (fpw, "        dd_line_v (70,20, 300);\n");
-  fprintf (fpw, "        dd_line_v (550,20, 300);\n");
+  fprintf (fpw, "        dd_line_h (70, 20, 480);\n");
+  fprintf (fpw, "        dd_line_h (70, 520, 480);\n");
+  fprintf (fpw, "        dd_line_v (70, 20, 500);\n");
+  fprintf (fpw, "        dd_line_v (550, 20, 500);\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "        for (k = 0; k < 29; k++) {\n");
+  fprintf (fpw, "        for (k = 0; k < 49; k++) {\n");
   fprintf (fpw, "          ctx.moveTo(70, 30+k*10);\n");
   fprintf (fpw, "          ctx.lineTo(74, 30+k*10);\n");
   fprintf (fpw, "          ctx.moveTo(546, 30+k*10);\n");
@@ -536,8 +526,8 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "        }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        for (k = 0; k < 32; k++) {\n");
-  fprintf (fpw, "          ctx.moveTo(85+k*15, 316);\n");
-  fprintf (fpw, "          ctx.lineTo(85+k*15, 320);\n");
+  fprintf (fpw, "          ctx.moveTo(85+k*15, 516);\n");
+  fprintf (fpw, "          ctx.lineTo(85+k*15, 520);\n");
   fprintf (fpw, "          ctx.moveTo(85+k*15, 20);\n");
   fprintf (fpw, "          ctx.lineTo(85+k*15, 24);\n");
   fprintf (fpw, "        }\n");
@@ -555,23 +545,23 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "        ctx.textAlign=\"center\";\n");
   fprintf (fpw, "        ctx.textBaseline=\"top\";\n");
   fprintf (fpw, "        for (k = 0; k < 7; k++) {\n");
-  fprintf (fpw, "          ctx.fillText(zeitachse[k], 70+k*75, 330);\n");
+  fprintf (fpw, "          ctx.fillText(zeitachse[k], 70+k*75, 530);\n");
   fprintf (fpw, "        }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        // Temperaturachse\n");
   fprintf (fpw, "        ctx.textAlign=\"right\";\n");
   fprintf (fpw, "        ctx.textBaseline=\"middle\";\n");
-  fprintf (fpw, "        for (k = 0; k < 7; k++) {\n");
-  fprintf (fpw, "          ctx.fillText((maxtemp - 5 * k), 60, 20+k*50);\n");
+  fprintf (fpw, "        for (k = 0; k < 11; k++) {\n");
+  fprintf (fpw, "          ctx.fillText((35 - 5 * k), 60, 20+k*50);\n");
   fprintf (fpw, "        }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "        // Niederschlagsachse\n");
   fprintf (fpw, "        if (ns == 1) {\n");
   fprintf (fpw, "          ctx.fillStyle = \"#88BBFF\";\n");
-  fprintf (fpw, "          var nsachse = [\"15.0\", \"12.5\", \"10.0\", \"7.5\", \"5.0\", \"2.5\", \"0.0\"];\n");
+  fprintf (fpw, "          var nsachse = [\"25.0\", \"22.5\", \"20.0\", \"17.5\", \"15.0\", \"12.5\", \"10.0\", \"7.5\", \"5.0\", \"2.5\", \"0.0\"];\n");
   fprintf (fpw, "          ctx.textAlign=\"left\";\n");
   fprintf (fpw, "          ctx.textBaseline=\"middle\";\n");
-  fprintf (fpw, "          for (k = 0; k < 7; k++) {\n");
+  fprintf (fpw, "          for (k = 0; k < 11; k++) {\n");
   fprintf (fpw, "            ctx.fillText(nsachse[k], 560, 20+k*50);\n");
   fprintf (fpw, "          }\n");
   fprintf (fpw, "        }\n");
@@ -587,7 +577,6 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "      // artmin      :  Array mit Minimum-Temperaturwerten\n");
   fprintf (fpw, "      // artmid      :  Array mit Mittel-Temperaturwerten\n");
   fprintf (fpw, "      // artmax      :  Array mit Maximum-Temperaturwerten\n");
-  fprintf (fpw, "      // maxtemp     :  oberer Temperaturwert an Temperaturachse\n");
   fprintf (fpw, "      // ---------------------------------------------------------------------------------------------------\n");
   fprintf (fpw, "      function draw_temp (canvas_id, arzeit, artmin, artmid, artmax, maxtemp) {\n");
   fprintf (fpw, "        var colmin = \"#0000FF\";\n");
@@ -638,21 +627,21 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "        for (k = 0; k < num; k++) {\n");
   fprintf (fpw, "          px = arzeit[k] * 15 + 69;\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "          py_min = 320 - ((artmin[k] * 10) - (maxtemp * 10 - 300));\n");
+  fprintf (fpw, "          py_min = 520 - ((artmin[k] * 10) - (35 * 10 - 500));\n");
   fprintf (fpw, "          notoveri = 1;\n");
-  fprintf (fpw, "          if (py_min > 320) {\n");
+  fprintf (fpw, "          if (py_min > 520) {\n");
   fprintf (fpw, "            notoveri = 0;\n");
-  fprintf (fpw, "            py_min = 323;\n");
+  fprintf (fpw, "            py_min = 523;\n");
   fprintf (fpw, "          }\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "          py_max = 320 - ((artmax[k] * 10) - (maxtemp * 10 - 300));\n");
+  fprintf (fpw, "          py_max = 520 - ((artmax[k] * 10) - (35 * 10 - 500));\n");
   fprintf (fpw, "          notovera = 1;\n");
   fprintf (fpw, "          if (py_max < 20) {\n");
   fprintf (fpw, "            notovera = 0;\n");
   fprintf (fpw, "            py_max = 17;\n");
   fprintf (fpw, "          }\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "          py_mid = 320 - ((artmid[k] * 10) - (maxtemp * 10 - 300));\n");
+  fprintf (fpw, "          py_mid = 520 - ((artmid[k] * 10) - (35 * 10 - 500));\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "          ctx.strokeStyle=colmid;\n");
   fprintf (fpw, "          dd_point (px,py_mid,1);\n");
@@ -705,14 +694,14 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "\n");
   fprintf (fpw, "        for (k = 0; k < num; k++) {\n");
   fprintf (fpw, "          px = arzeit[k] * 15 + 64;\n");
-  fprintf (fpw, "          py = 319 - (arns[k] * 20);\n");
-  fprintf (fpw, "          if (arns[k] > 15) {\n");
+  fprintf (fpw, "          py = 519 - (arns[k] * 20);\n");
+  fprintf (fpw, "          if (arns[k] > 25) {\n");
   fprintf (fpw, "            py = 10;\n");
   fprintf (fpw, "          }\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "          if (arns[k] > 0) {\n");
   fprintf (fpw, "            for (i = 0; i < 12; i++) {\n");
-  fprintf (fpw, "              dd_line ((px+i), 320, (px+i), py);\n");
+  fprintf (fpw, "              dd_line ((px+i), 520, (px+i), py);\n");
   fprintf (fpw, "            }\n");
   fprintf (fpw, "          }\n");
   fprintf (fpw, "        }\n");
@@ -720,7 +709,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "\n");
   fprintf (fpw, "\n");
 
-  fprintf (fpw, "      draw_diagram (\"diagrammi\", %d, 1);\n", (int) diamaxt);
+  fprintf (fpw, "      draw_diagram (\"diagrammi\", 1);\n");
   fprintf (fpw, "\n");
 
   fprintf (fpw, "      var grafzeit = ");
@@ -787,7 +776,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
 
   fprintf (fpw, "\n");
   fprintf (fpw, "      draw_ns (\"diagrammi\", grafzeit, grafns);\n");
-  fprintf (fpw, "      draw_temp (\"diagrammi\", grafzeit, graftmin, graftmid, graftmax, %d);\n", (int) diamaxt);
+  fprintf (fpw, "      draw_temp (\"diagrammi\", grafzeit, graftmin, graftmid, graftmax);\n");
   fprintf (fpw, "\n");
 
   fprintf (fpw, "    </script>\n");
