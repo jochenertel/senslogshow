@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 31.10.2023
- * updated  : 09.11.2023
+ * updated  : 10.11.2023
  *
  **************************************************************************************************/
 
@@ -21,7 +21,7 @@
 #include "../../lib/slg_rain.h"
 
 
-#define VERSION "legacy senslog html month page generation tool (version 0.2.0)"
+#define VERSION "legacy senslog html month page generation tool (version 0.3.0)"
 
 
 /***************************************************************************************************
@@ -172,12 +172,14 @@ void gen_error (char *fname, uint32_t e)
  *   *month:  month data
  *   z     :  0: current month
  *            1: older month
+ *   t     :  0: no dayfile link
+ *            1: include dayfile link
  *
  ****************************************************************************************/
-void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
+void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z, uint32_t t)
 {
   FILE         *fpw;
-  char         c, smonth[20], srmsum[20], smonthdec[20], smonthinc[20], stavar[20], stmin[20], stmax[20], tstr[20];
+  char         c, smonth[20], srmsum[20], smont[20], smonthdec[20], smonthinc[20], slastd[20], stavar[20], stmin[20], stmax[20], tstr[20];
   uint32_t     i, ind, day;
   slg_date     tdate;
   slg_mtemper  mtemper;
@@ -199,6 +201,8 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
 
   /* calculate month links ******************************************/
   slg_date_copy (&tdate, &month->date);
+  slg_date_to_fstring (smont, &tdate);
+  smont[7] = 0;  /* cut day */
   slg_date_dec (&tdate);
   slg_date_to_fstring (smonthdec, &tdate);
   smonthdec[7] = 0;  /* cut day */
@@ -217,7 +221,6 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
     slg_temper2str (stmin, 0, CNERR);
   }
   else {
-    tdate.d = day;
     ind = slg_dtemper_indmin (&mtemper.dtemper[day-1]);
     slg_temper2str (stmin, 0, mtemper.dtemper[day-1].val[ind]);
   }
@@ -227,7 +230,6 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
     slg_temper2str (stmax, 0, CNERR);
   }
   else {
-    tdate.d = day;
     ind = slg_dtemper_indmax (&mtemper.dtemper[day-1]);
     slg_temper2str (stmax, 0, mtemper.dtemper[day-1].val[ind]);
   }
@@ -235,6 +237,15 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   /* calculate rain sum *********************************************/
   slg_mrain_read (&mrain, month, 2);
   slg_rain2str (srmsum, 0, slg_mrain_sum (&mrain));
+
+  /* search last valid day in month *********************************/
+  slg_date_copy (&tdate, &month->date);
+  for (i=0; i < 31; i++) {
+    if (month->dvalid[i]) {
+      tdate.d = i + 1;
+    }
+  }
+  slg_date_to_fstring (slastd, &tdate);
 
 
   /* write output html file ***************************************************/
@@ -249,7 +260,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "  <meta name=\"description\" content=\"Monats-Wetter\">\n");
   fprintf (fpw, "  <meta name=\"generator\" content=\"" VERSION "\">\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "  <title>Monats-Wetter</title>\n");
+  fprintf (fpw, "  <title>Wetter %s</title>\n", smont);
   fprintf (fpw, "\n");
   fprintf (fpw, "  <style>\n");
   fprintf (fpw, "    body {\n");
@@ -301,7 +312,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
   fprintf (fpw, "\n");
   fprintf (fpw, "    table.lnk {\n");
   fprintf (fpw, "      width: 639px;\n");
-  fprintf (fpw, "      margin: 10px 0px 0px 0px;\n");
+  fprintf (fpw, "      margin: 10px 0px 20px 0px;\n");
   fprintf (fpw, "      padding: 0px;\n");
   fprintf (fpw, "      border-collapse:collapse;\n");
   fprintf (fpw, "      border: 0px;\n");
@@ -390,13 +401,15 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
 
   if (z == 0) {
     fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Monat zurück</a></p></td>\n", smonthdec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    if (t == 1) fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"index.html\">Tagesansicht</a></p></td>\n");
+    else fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
     fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\">&nbsp;</p></td>\n");
   }
 
   if (z == 1) {
     fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Monat zurück</a></p></td>\n", smonthdec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    if (t == 1) fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Tagesansicht</a></p></td>\n", slastd);
+    else fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
     fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"%s.html\">Monat vor</a></p></td>\n", smonthinc);
   }
 
@@ -799,7 +812,7 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z)
 
 int main (int argc, char *argv[])
 {
-  uint32_t       res, l, m, y, z, n, hm;
+  uint32_t       res, l, m, y, z, n, t, hm;
   char           namer[256], namew[256];
   slg_monthdata  month;
 
@@ -816,6 +829,7 @@ int main (int argc, char *argv[])
 //    printf ("                            1: Dresden\n");
     printf ("     -z <uint> :  mode:  0: current month\n");
     printf ("                         1: older month\n");
+    printf ("     -t        :  include a dayfile link (optional)\n");
     printf ("     -n        :  dayfile does not have a header yet (optional)\n");
 
     return (0);
@@ -891,6 +905,9 @@ int main (int argc, char *argv[])
     return (1);
   }
 
+  if (parArgTypExists (argc, argv, 't')) t = 1;
+  else t = 0;
+
   if (parArgTypExists (argc, argv, 'n')) n = 1;
   else n = 0;
 
@@ -913,7 +930,7 @@ int main (int argc, char *argv[])
       return (1);
     }
     else {
-      gen_bretnig (namew, &month, z);
+      gen_bretnig (namew, &month, z, t);
     }
   }
 
