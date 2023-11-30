@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 09.01.2022
- * updated  : 05.11.2023
+ * updated  : 30.11.2023
  *
  **************************************************************************************************/
 
@@ -226,6 +226,30 @@ uint32_t slg_mtemper_daymax (slg_mtemper *mtemper);
  *
  ****************************************************************************************/
 int32_t slg_mtemper_average (slg_mtemper *mtemper);
+
+
+/* merges two month temperature objects to a new one in the following way:
+ * - for each index the lowest temperature value is taken
+ * - if one value is invalid the result is invalid only if the other is in invalid window
+ *
+ * parameters:
+ *   *mtemper :  output month temperature object
+ *   *name    :  name of output object
+ *   *mtemper1:  input month temperature object 1
+ *   invwind1b:  invalid temperature day window begin of object 1
+ *   invwind1e:  invalid temperature day window end of object 1
+ *   *mtemper2:  input month temperature object 2
+ *   invwind2b:  invalid temperature day window begin of object 2
+ *   invwind2e:  invalid temperature day window end of object 2
+ *
+ * return value:
+ *          0 :  successfull
+ *          1 :  input objects are not of same format
+ *
+ ****************************************************************************************/
+uint32_t slg_mtemper_merge_2 (slg_mtemper *mtemper, char *name,
+                              slg_mtemper *mtemper1, uint32_t invwind1b, uint32_t invwind1e,
+                              slg_mtemper *mtemper2, uint32_t invwind2b, uint32_t invwind2e);
 
 
 #endif
