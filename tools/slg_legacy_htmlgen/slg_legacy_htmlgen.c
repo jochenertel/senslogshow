@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 15.01.2022
- * updated  : 14.10.2023
+ * updated  : 30.11.2023
  *
  **************************************************************************************************/
 
@@ -21,7 +21,7 @@
 #include "../../lib/slg_rain.h"
 
 
-#define VERSION "legacy senslog html page generation tool (version 0.3.0)"
+#define VERSION "legacy senslog html page generation tool (version 0.3.1)"
 
 
 /***************************************************************************************************
@@ -155,13 +155,15 @@ void gen_error (char *fname, uint32_t e)
  *   m     :  0: todays data
  *            1: yesterdays data
  *            2: older data
+ *   t     :  0: no monthfile link
+ *            1: include monthfile link
  *
  ****************************************************************************************/
-void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
+void gen_bretnig (char *fname, slg_daydata *df, uint32_t m, uint32_t t)
 {
   FILE         *fpw;
-  char         c, sdate[20], sdow[20], stavar[20], stcur[20], stmax[20], stmin[20], srsum[20],
-               stimcur[20], stimmax[20], stimmin[20], sdatedec[20], sdateinc[20], tstr[20];
+  char         c, sdate[20], sdow[20], stavar[20], stcur[20], stmax[20], stmin[20], srsum[20], sday[20],
+               stimcur[20], stimmax[20], stimmin[20], sdatedec[20], sdateinc[20], tstr[20], smon[20];
   uint32_t     summer, ind, i;
   int32_t      diamax;
   slg_date     date;
@@ -196,6 +198,9 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
 
   diamax = slg_dtemper_maxindayout30 (&temper, &date) / 10;
 
+  slg_date_to_fstring (sday, &date);
+  slg_date_to_fstring (smon, &date);
+  smon[7] = 0;  /* cut day */
   slg_date_dec (&date);
   slg_date_to_fstring (sdatedec, &date);
   slg_date_inc (&date);
@@ -215,7 +220,7 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "  <meta name=\"description\" content=\"Tages-Wetter\">\n");
   fprintf (fpw, "  <meta name=\"generator\" content=\"" VERSION "\">\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "  <title>Tages-Wetter</title>\n");
+  fprintf (fpw, "  <title>Wetter %s</title>\n", sday);
   fprintf (fpw, "\n");
   fprintf (fpw, "  <style>\n");
   fprintf (fpw, "    body {\n");
@@ -230,7 +235,7 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "      width: 640px;\n");
   fprintf (fpw, "      background: #FFC78F;\n");
   fprintf (fpw, "      margin: 20px auto;\n");
-  fprintf (fpw, "      padding: 20px;\n");
+  fprintf (fpw, "      padding: 10px 20px 10px 20px;\n");
   fprintf (fpw, "      border: 0px;\n");
   fprintf (fpw, "      border-radius: 10px;\n");
   fprintf (fpw, "      box-shadow: 10px 10px 10px silver;\n");
@@ -242,7 +247,7 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "      width: 640px;\n");
   fprintf (fpw, "      background: #FFFFFF;\n");
   fprintf (fpw, "      margin: 20px auto;\n");
-  fprintf (fpw, "      padding: 10px 0px 10px 0px;\n");
+  fprintf (fpw, "      padding: 10px 0px 0px 0px;\n");
   fprintf (fpw, "      border: 0px;\n");
   fprintf (fpw, "      border-radius: 10px;\n");
   fprintf (fpw, "      text-align: center;\n");
@@ -267,7 +272,7 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "\n");
   fprintf (fpw, "    table.lnk {\n");
   fprintf (fpw, "      width: 639px;\n");
-  fprintf (fpw, "      margin: 20px 0px 0px 0px;\n");
+  fprintf (fpw, "      margin: 10px 0px 20px 0px;\n");
   fprintf (fpw, "      padding: 0px;\n");
   fprintf (fpw, "      border-collapse:collapse;\n");
   fprintf (fpw, "      border: 0px;\n");
@@ -349,6 +354,35 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "\n");
   fprintf (fpw, "<body>\n");
   fprintf (fpw, "  <div id=\"rahmen\">\n");
+
+  fprintf (fpw, "    <table class=\"lnk\">\n");
+  fprintf (fpw, "      <tr>\n");
+
+  if (m == 0) {
+    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
+    if (t == 1) fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Monatsansicht</a></p></td>\n", smon);
+    else fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\">&nbsp;</p></td>\n");
+  }
+
+  if (m == 1) {
+    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
+    if (t == 1) fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Monatsansicht</a></p></td>\n", smon);
+    else fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Tag vor</a></p></td>\n");
+  }
+
+  if (m == 2) {
+    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
+    if (t == 1) fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Monatsansicht</a></p></td>\n", smon);
+    else fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"%s.html\">Tag vor</a></p></td>\n", sdateinc);
+  }
+
+  fprintf (fpw, "      </tr>\n");
+  fprintf (fpw, "    </table>\n");
+  fprintf (fpw, "\n");
+
   fprintf (fpw, "    <h1>%s</h1>\n", df->locstr);
   fprintf (fpw, "\n");
   fprintf (fpw, "    <p class=\"p1\">%s, %s</p>\n", sdow, sdate);
@@ -409,31 +443,6 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "      </table>\n");
   fprintf (fpw, "    </div>\n");
-  fprintf (fpw, "\n");
-
-  fprintf (fpw, "    <table class=\"lnk\">\n");
-  fprintf (fpw, "      <tr>\n");
-
-  if (m == 0) {
-    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\">&nbsp;</p></td>\n");
-  }
-
-  if (m == 1) {
-    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Tag vor</a></p></td>\n");
-  }
-
-  if (m == 2) {
-    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"%s.html\">Tag vor</a></p></td>\n", sdateinc);
-  }
-
-  fprintf (fpw, "      </tr>\n");
-  fprintf (fpw, "    </table>\n");
   fprintf (fpw, "\n");
 
   fprintf (fpw, "    <script>\n");
@@ -747,13 +756,15 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m)
  *   m     :  0: todays data
  *            1: yesterdays data
  *            2: older data
+ *   t     :  0: no monthfile link
+ *            1: include monthfile link
  *
  ****************************************************************************************/
-void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
+void gen_dresden (char *fname, slg_daydata *df, uint32_t m, uint32_t t)
 {
   FILE         *fpw;
-  char         c, sdate[20], sdow[20], stavar[20], stcur[20], stmax[20], stmin[20],
-               stimcur[20], stimmax[20], stimmin[20], sdatedec[20], sdateinc[20], tstr[20];
+  char         c, sdate[20], sdow[20], stavar[20], stcur[20], stmax[20], stmin[20], sday[20],
+               stimcur[20], stimmax[20], stimmin[20], sdatedec[20], sdateinc[20], tstr[20], smon[20];
   uint32_t     summer, ind, i;
   int32_t      diamax;
   slg_date     date;
@@ -787,6 +798,9 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
 
   diamax = slg_dtemper_maxindayout30 (&temper, &date) / 10;
 
+  slg_date_to_fstring (sday, &date);
+  slg_date_to_fstring (smon, &date);
+  smon[7] = 0;  /* cut day */
   slg_date_dec (&date);
   slg_date_to_fstring (sdatedec, &date);
   slg_date_inc (&date);
@@ -806,7 +820,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "  <meta name=\"description\" content=\"Tages-Wetter\">\n");
   fprintf (fpw, "  <meta name=\"generator\" content=\"" VERSION "\">\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "  <title>Tages-Wetter</title>\n");
+  fprintf (fpw, "  <title>Wetter %s</title>\n", sday);
   fprintf (fpw, "\n");
   fprintf (fpw, "  <style>\n");
   fprintf (fpw, "    body {\n");
@@ -821,7 +835,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "      width: 640px;\n");
   fprintf (fpw, "      background: #AAEECC;\n");
   fprintf (fpw, "      margin: 20px auto;\n");
-  fprintf (fpw, "      padding: 20px;\n");
+  fprintf (fpw, "      padding: 10px 20px 10px 20px;\n");
   fprintf (fpw, "      border: 0px;\n");
   fprintf (fpw, "      border-radius: 10px;\n");
   fprintf (fpw, "      box-shadow: 10px 10px 10px silver;\n");
@@ -833,7 +847,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "      width: 640px;\n");
   fprintf (fpw, "      background: #FFFFFF;\n");
   fprintf (fpw, "      margin: 20px auto;\n");
-  fprintf (fpw, "      padding: 10px 0px 10px 0px;\n");
+  fprintf (fpw, "      padding: 10px 0px 0px 0px;\n");
   fprintf (fpw, "      border: 0px;\n");
   fprintf (fpw, "      border-radius: 10px;\n");
   fprintf (fpw, "      text-align: center;\n");
@@ -858,7 +872,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "\n");
   fprintf (fpw, "    table.lnk {\n");
   fprintf (fpw, "      width: 639px;\n");
-  fprintf (fpw, "      margin: 20px 0px 0px 0px;\n");
+  fprintf (fpw, "      margin: 10px 0px 20px 0px;\n");
   fprintf (fpw, "      padding: 0px;\n");
   fprintf (fpw, "      border-collapse:collapse;\n");
   fprintf (fpw, "      border: 0px;\n");
@@ -940,6 +954,35 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "\n");
   fprintf (fpw, "<body>\n");
   fprintf (fpw, "  <div id=\"rahmen\">\n");
+
+  fprintf (fpw, "    <table class=\"lnk\">\n");
+  fprintf (fpw, "      <tr>\n");
+
+  if (m == 0) {
+    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
+    if (t == 1) fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Monatsansicht</a></p></td>\n", smon);
+    else fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\">&nbsp;</p></td>\n");
+  }
+
+  if (m == 1) {
+    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
+    if (t == 1) fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Monatsansicht</a></p></td>\n", smon);
+    else fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Tag vor</a></p></td>\n");
+  }
+
+  if (m == 2) {
+    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
+    if (t == 1) fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\"><a href=\"%s.html\">Monatsansicht</a></p></td>\n", smon);
+    else fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
+    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"%s.html\">Tag vor</a></p></td>\n", sdateinc);
+  }
+
+  fprintf (fpw, "      </tr>\n");
+  fprintf (fpw, "    </table>\n");
+  fprintf (fpw, "\n");
+
   fprintf (fpw, "    <h1>%s</h1>\n", df->locstr);
   fprintf (fpw, "\n");
   fprintf (fpw, "    <p class=\"p1\">%s, %s</p>\n", sdow, sdate);
@@ -984,31 +1027,6 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
   fprintf (fpw, "    <div class=\"widget\">\n");
   fprintf (fpw, "      <canvas id=\"diagrammi\" width=\"620\" height=\"360\"></canvas>\n");
   fprintf (fpw, "    </div>\n");
-  fprintf (fpw, "\n");
-
-  fprintf (fpw, "    <table class=\"lnk\">\n");
-  fprintf (fpw, "      <tr>\n");
-
-  if (m == 0) {
-    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\">&nbsp;</p></td>\n");
-  }
-
-  if (m == 1) {
-    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"index.html\">Tag vor</a></p></td>\n");
-  }
-
-  if (m == 2) {
-    fprintf (fpw, "        <td class=\"lnkl\"><p class=\"p2\"><a href=\"%s.html\">Tag zurück</a></p></td>\n", sdatedec);
-    fprintf (fpw, "        <td class=\"lnkm\"><p class=\"p2\">&nbsp;</p></td>\n");
-    fprintf (fpw, "        <td class=\"lnkr\"><p class=\"p2\"><a href=\"%s.html\">Tag vor</a></p></td>\n", sdateinc);
-  }
-
-  fprintf (fpw, "      </tr>\n");
-  fprintf (fpw, "    </table>\n");
   fprintf (fpw, "\n");
 
   fprintf (fpw, "    <script>\n");
@@ -1265,7 +1283,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m)
 
 int main (int argc, char *argv[])
 {
-  uint32_t     res, l, m, n, hm;
+  uint32_t     res, l, m, n, hm, t;
   char         namer[256], namew[256];
   slg_daydata  dayf;
 
@@ -1281,6 +1299,7 @@ int main (int argc, char *argv[])
     printf ("     -m <uint> :  mode:  0: today\n");
     printf ("                         1: yesterday\n");
     printf ("                         2: older day\n");
+    printf ("     -t        :  include a monthfile link (optional)\n");
     printf ("     -n        :  dayfile does not have a header yet (optional)\n");
 
     return (0);
@@ -1336,6 +1355,9 @@ int main (int argc, char *argv[])
     return (1);
   }
 
+  if (parArgTypExists (argc, argv, 't')) t = 1;
+  else t = 0;
+
   if (parArgTypExists (argc, argv, 'n')) n = 1;
   else n = 0;
 
@@ -1356,7 +1378,7 @@ int main (int argc, char *argv[])
       gen_error (namew, 20);
     }
     else {
-      gen_bretnig (namew, &dayf, m);
+      gen_bretnig (namew, &dayf, m, t);
     }
   }
 
@@ -1365,7 +1387,7 @@ int main (int argc, char *argv[])
       gen_error (namew, 20);
     }
     else {
-      gen_dresden (namew, &dayf, m);
+      gen_dresden (namew, &dayf, m, t);
     }
   }
 
