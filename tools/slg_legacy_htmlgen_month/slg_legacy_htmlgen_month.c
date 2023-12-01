@@ -21,7 +21,7 @@
 #include "../../lib/slg_rain.h"
 
 
-#define VERSION "legacy senslog html month page generation tool (version 0.3.2)"
+#define VERSION "legacy senslog html month page generation tool (version 0.3.3)"
 
 
 /***************************************************************************************************
@@ -431,14 +431,14 @@ void gen_bretnig (char *fname, slg_monthdata *month, uint32_t z, uint32_t t)
   fprintf (fpw, "      <table class=\"wid\">\n");
   fprintf (fpw, "        <tr>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Minimum</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Maximum</p></td>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Mittel</p></td>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Maximum</p></td>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Regensumme</p></td>\n");
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "        <tr>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmin);
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmax);
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stavar);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmax);
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s mm</p></td>\n", srmsum);
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "      </table>\n");
@@ -1066,13 +1066,13 @@ void gen_dresden (char *fname, slg_monthdata *month, uint32_t z, uint32_t t)
   fprintf (fpw, "      <table class=\"wid\">\n");
   fprintf (fpw, "        <tr>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Minimum</p></td>\n");
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Maximum</p></td>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Mittel</p></td>\n");
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p2\">Temp. Maximum</p></td>\n");
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "        <tr>\n");
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmin);
-  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmax);
   fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stavar);
+  fprintf (fpw, "          <td class=\"wid\"><p class=\"p1\">%s &deg;C</p></td>\n", stmax);
   fprintf (fpw, "        </tr>\n");
   fprintf (fpw, "      </table>\n");
   fprintf (fpw, "    </div>\n");
