@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 31.10.2023
- * updated  : 30.11.2023
+ * updated  : 01.12.2023
  *
  **************************************************************************************************/
 
@@ -21,7 +21,7 @@
 #include "../../lib/slg_rain.h"
 
 
-#define VERSION "legacy senslog html month page generation tool (version 0.3.1)"
+#define VERSION "legacy senslog html month page generation tool (version 0.3.2)"
 
 
 /***************************************************************************************************
@@ -1018,10 +1018,10 @@ void gen_dresden (char *fname, slg_monthdata *month, uint32_t z, uint32_t t)
   fprintf (fpw, "      color: #777777;\n");
   fprintf (fpw, "    }\n");
   fprintf (fpw, "\n");
-  fprintf (fpw, "    a:link {color:#8f542c;text-decoration:none;}\n");
-  fprintf (fpw, "    a:visited {color:#8f542c;text-decoration:none;}\n");
-  fprintf (fpw, "    a:hover {color:#d98347;text-decoration:none;}\n");
-  fprintf (fpw, "    a:active {color:#d98347;text-decoration:none;}\n");
+  fprintf (fpw, "    a:link {color:#22aa66;text-decoration:none;}\n");
+  fprintf (fpw, "    a:visited {color:#22aa66;text-decoration:none;}\n");
+  fprintf (fpw, "    a:hover {color:#00aa00;text-decoration:none;}\n");
+  fprintf (fpw, "    a:active {color:#00aa00;text-decoration:none;}\n");
   fprintf (fpw, "\n");
   fprintf (fpw, "  </style>\n");
   fprintf (fpw, "</head>\n");
