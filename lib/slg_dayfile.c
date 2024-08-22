@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 03.11.2023
+ * updated  : 21.08.2024
  *
  **************************************************************************************************/
 
@@ -165,7 +165,8 @@ uint32_t slg_mlgetval (char *value, char *line, uint32_t k)
  *   *filename:  path/filename of dayfile to read
  *   hmode:      0: normal header in file
  *               1: no header in file (assumed Bretnig: TEMP RAIN)
- *               2: no header in file (assumed Dresden: TEMP TEMP TEMP)
+ *               2: no header in file (assumed Dresden Wittenberger: TEMP TEMP TEMP)
+ *               3: no header in file (assumed Dresden Hofefeld: TEMP RAIN)
  *
  * return value:
  *    0 :  operation successfull
@@ -405,7 +406,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
   }
 
 
-  /* no header in file, Dresden header assumed (TEMP TEMP TEMP) *****/
+  /* no header in file, Dresden Wittenberger header assumed (TEMP TEMP TEMP) *****/
   if (hmode == 2) {
     daydata->locid = 2;
     strcpy (daydata->locstr, "Dresden, Wittenberger Strasse 16");
@@ -437,6 +438,37 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
     daydata->coltyp[2] = DF_TEMP;
     daydata->colid[2] = 3;
     strcpy (daydata->colstr[2], "Schlafzimmer");
+  }
+
+
+  /* no header in file, Dresden Hofefeld header assumed (TEMP RAIN) **********/
+  if (hmode == 3) {
+    daydata->locid = 1;
+    strcpy (daydata->locstr, "Dresden, Am Hofefeld 2");
+    daydata->tmode = 1;
+
+    res = slg_readtxtline (line, MAX_MLN_LEN, fpr);
+    if (res == 3) {fclose(fpr); return (2);}
+    if (res == 4) {fclose(fpr); return (3);}
+    res = slg_mlgetval (tmp, line, 0);
+    if (res > 0) {fclose(fpr); return (12);}
+    res = slg_date_set_str (&dtmp, tmp);
+    if (res == 0) {fclose(fpr); return (13);}
+    slg_date_copy (&daydata->date, &dtmp);
+    fclose(fpr);
+    fpr = fopen(filename, "rb");
+    if (fpr == NULL) return (1);
+
+    strcpy (daydata->comment, "");
+    daydata->colnum = 2;
+
+    daydata->coltyp[0] = DF_TEMP;
+    daydata->colid[0] = 1;
+    strcpy (daydata->colstr[0], "Aussen");
+
+    daydata->coltyp[1] = DF_RAIN;
+    daydata->colid[1] = 2;
+    strcpy (daydata->colstr[1], "");
   }
 
 
@@ -817,7 +849,8 @@ uint32_t slg_getrainval (slg_daydata *daydata, uint32_t c, uint32_t k)
  *   *pathname:  path name of dayfiles to read (incl. '/') or empty string
  *   hmode:      0: normal header in dayfiles
  *               1: no header in dayfiles (assumed Bretnig: TEMP RAIN)
- *               2: no header in dayfiles (assumed Dresden: TEMP TEMP TEMP)
+ *               2: no header in dayfiles (assumed Dresden Wittenberger: TEMP TEMP TEMP)
+ *               3: no header in dayfiles (assumed Dresden Hofefeld: TEMP RAIN)
  *
  * return value:
  *    0 :  operation successfull
@@ -843,7 +876,7 @@ uint32_t slg_readmonth (slg_monthdata *monthdata, char *pathname,
   slg_date_copy (&monthdata->date, &date);
 
   /* check other parameter */
-  if (hmode > 2) return (1);
+  if (hmode > 3) return (1);
   if (strlen(pathname) > 85) return (1);
 
   /* initialise loop */

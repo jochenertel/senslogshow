@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 03.11.2023
+ * updated  : 21.08.2024
  *
  **************************************************************************************************/
 
@@ -75,7 +75,8 @@ typedef struct {
  *   *filename:  path/filename of dayfile to read
  *   hmode:      0: normal header in file
  *               1: no header in file (assumed Bretnig: TEMP RAIN)
- *               2: no header in file (assumed Dresden: TEMP TEMP TEMP)
+ *               2: no header in file (assumed Dresden Wittenberger: TEMP TEMP TEMP)
+ *               3: no header in file (assumed Dresden Hofefeld: TEMP RAIN)
  *
  * return value:
  *    0 :  operation successfull
@@ -235,7 +236,8 @@ uint32_t slg_getrainval (slg_daydata *daydata, uint32_t c, uint32_t k);
  *   *pathname:  path name of dayfiles to read (incl. '/') or empty string
  *   hmode:      0: normal header in dayfiles
  *               1: no header in dayfiles (assumed Bretnig: TEMP RAIN)
- *               2: no header in dayfiles (assumed Dresden: TEMP TEMP TEMP)
+ *               2: no header in dayfiles (assumed Dresden Wittenberger: TEMP TEMP TEMP)
+ *               3: no header in dayfiles (assumed Dresden Hofefeld: TEMP RAIN)
  *
  * return value:
  *    0 :  operation successfull
