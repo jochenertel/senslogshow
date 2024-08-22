@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 15.01.2022
- * updated  : 30.11.2023
+ * updated  : 21.08.2024
  *
  **************************************************************************************************/
 
@@ -21,7 +21,7 @@
 #include "../../lib/slg_rain.h"
 
 
-#define VERSION "legacy senslog html page generation tool (version 0.3.1)"
+#define VERSION "legacy senslog html page generation tool (version 0.3.5)"
 
 
 /***************************************************************************************************
@@ -157,9 +157,10 @@ void gen_error (char *fname, uint32_t e)
  *            2: older data
  *   t     :  0: no monthfile link
  *            1: include monthfile link
+ *   coul  :  colour string (e.g. "#FFC78F")
  *
  ****************************************************************************************/
-void gen_bretnig (char *fname, slg_daydata *df, uint32_t m, uint32_t t)
+void gen_bretnig (char *fname, slg_daydata *df, uint32_t m, uint32_t t, char *coul)
 {
   FILE         *fpw;
   char         c, sdate[20], sdow[20], stavar[20], stcur[20], stmax[20], stmin[20], srsum[20], sday[20],
@@ -233,7 +234,7 @@ void gen_bretnig (char *fname, slg_daydata *df, uint32_t m, uint32_t t)
   fprintf (fpw, "    #rahmen {\n");
   fprintf (fpw, "      position: relative;\n");
   fprintf (fpw, "      width: 640px;\n");
-  fprintf (fpw, "      background: #FFC78F;\n");
+  fprintf (fpw, "      background: %s;\n", coul);
   fprintf (fpw, "      margin: 20px auto;\n");
   fprintf (fpw, "      padding: 10px 20px 10px 20px;\n");
   fprintf (fpw, "      border: 0px;\n");
@@ -1284,7 +1285,7 @@ void gen_dresden (char *fname, slg_daydata *df, uint32_t m, uint32_t t)
 int main (int argc, char *argv[])
 {
   uint32_t     res, l, m, n, hm, t;
-  char         namer[256], namew[256];
+  char         namer[256], namew[256], coul[20];
   slg_daydata  dayf;
 
   /* help menu ************************************************************************************/
@@ -1295,7 +1296,8 @@ int main (int argc, char *argv[])
     printf ("     -i <str>  :  input dayfile\n");
     printf ("     -o <str>  :  output html file\n");
     printf ("     -l <uint> :  location: 0: Bretnig\n");
-    printf ("                            1: Dresden\n");
+    printf ("                            1: Dresden Wittenberger\n");
+    printf ("                            2: Dresden Hofefeld\n");
     printf ("     -m <uint> :  mode:  0: today\n");
     printf ("                         1: yesterday\n");
     printf ("                         2: older day\n");
@@ -1336,7 +1338,7 @@ int main (int argc, char *argv[])
     printf ("slg_legacy_htmlgen: error: can not read value of parameter \'-l\'\n");
     return (1);
   }
-  if (l > 1) {
+  if (l > 2) {
     printf ("slg_legacy_htmlgen: error: invalid location\n");
     return (1);
   }
@@ -1373,12 +1375,14 @@ int main (int argc, char *argv[])
     return (1);
   }
 
-  if (l == 0) {
+  if ((l == 0) || (l == 2)) {
     if ((slg_colexist(&dayf, DF_TEMP, 1) == 0) || (slg_colexist(&dayf, DF_RAIN, 2) == 0)) {
       gen_error (namew, 20);
     }
     else {
-      gen_bretnig (namew, &dayf, m, t);
+      if (l == 0) strcpy (coul, "#FFC78F");
+      if (l == 2) strcpy (coul, "#DED1FF");
+      gen_bretnig (namew, &dayf, m, t, coul);
     }
   }
 
