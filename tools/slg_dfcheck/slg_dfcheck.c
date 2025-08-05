@@ -5,7 +5,7 @@
  * author   : Jochen Ertel
  *
  * created  : 27.12.2021
- * updated  : 06.01.2022
+ * updated  : 05.08.2025
  *
  **************************************************************************************************/
 
@@ -19,7 +19,7 @@
 #include "../../lib/slg_dayfile.h"
 
 
-#define VERSION "senslog dayfile checking tool (version 0.1.1)"
+#define VERSION "senslog dayfile checking tool (version 0.2.0)"
 
 
 
@@ -30,9 +30,9 @@
 
 int main (int argc, char *argv[])
 {
-  uint32_t     res, hm, hide, es, el, iv;
+  uint32_t     res, hm, hide, es, el, iv, cp;
   int32_t      diff;
-  char         tstr[256], pstr[256], fname[300];
+  char         tstr[256], pstr[256], fname[300], fnamec[300];
   slg_date     date, edate;
   slg_daydata  dayf;
 
@@ -46,6 +46,7 @@ int main (int argc, char *argv[])
     printf ("     -p <str>  :  optional file path\n");
     printf ("     -d <uint> :  optional no header mode (1: Bretnig, 2: Dresden)\n");
     printf ("     -z        :  optional hide all dayfiles wich are ok and complete\n");
+    printf ("     -c        :  optional copy all dayfiles in existing subfolder copy (1: untouched lines, 2: reassembled values)\n");
 
     return (0);
   }
@@ -120,6 +121,21 @@ int main (int argc, char *argv[])
   if (parArgTypExists (argc, argv, 'z')) hide = 1;
   else hide = 0;
 
+  if (parArgTypExists (argc, argv, 'c')) {
+    res = parGetUint32 (argc, argv, 'c', &cp);
+    if (res == 0) {
+      printf ("slg_dfcheck: error: can not read value of parameter \'-c\'\n");
+      return (1);
+    }
+    if ((cp < 1) || (cp > 2)) {
+      printf ("slg_dfcheck: error: invalid copy mode\n");
+      return (1);
+    }
+  }
+  else {
+    cp = 0;
+  }
+
 
   /* check dayfiles *******************************************************************************/
   while (slg_date_compare (&date, &edate) < 3) {
@@ -127,9 +143,14 @@ int main (int argc, char *argv[])
     /* construct file name including path */
     slg_date_to_fstring (tstr, &date);
     strcpy (fname, pstr);
+    strcpy (fnamec, pstr);
     if (strlen(fname) != 0) strcat (fname, "/");
+    if (strlen(fnamec) != 0) strcat (fnamec, "/");
+    strcat (fnamec, "copy/");
     strcat (fname, tstr);
+    strcat (fnamec, tstr);
     strcat (fname, ".txt");
+    strcat (fnamec, ".txt");
 
     slg_date_to_string (tstr, &date);
 
@@ -164,6 +185,10 @@ int main (int argc, char *argv[])
         printf ("empsec = %lu   ", (unsigned long) es);
         printf ("emplin = %lu   ", (unsigned long) el);
         printf ("invval = %lu\n", (unsigned long) iv);
+      }
+
+      if (cp > 0) {
+        slg_writedayfile (fnamec, &dayf, (cp-1));
       }
     }
 

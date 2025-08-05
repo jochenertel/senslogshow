@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 21.08.2024
+ * updated  : 05.08.2025
  *
  **************************************************************************************************/
 
@@ -398,7 +398,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
 
     daydata->coltyp[0] = DF_TEMP;
     daydata->colid[0] = 1;
-    strcpy (daydata->colstr[0], "Aussen");
+    strcpy (daydata->colstr[0], "Aussen Hauswand NW");
 
     daydata->coltyp[1] = DF_RAIN;
     daydata->colid[1] = 2;
