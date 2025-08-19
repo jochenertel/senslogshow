@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 05.08.2025
+ * updated  : 19.08.2025
  *
  **************************************************************************************************/
 
@@ -134,7 +134,7 @@ uint32_t slg_mlgetval (char *value, char *line, uint32_t k)
     i++;
   }
 
-  if (line[i] != 0x00) {
+  if (n == (k+1)) {
     i--;
     j = 0;
     while ((line[i] != 0x00) && (line[i] != ' ') && (j < 11)) {
@@ -356,6 +356,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
         daydata->coltyp[daydata->colnum] = 0;
         if (strcmp(tmp, "TEMP") == 0) daydata->coltyp[daydata->colnum] = DF_TEMP;
         if (strcmp(tmp, "RAIN") == 0) daydata->coltyp[daydata->colnum] = DF_RAIN;
+        if (strcmp(tmp, "EVNT") == 0) daydata->coltyp[daydata->colnum] = DF_EVNT;
         if (daydata->coltyp[daydata->colnum] == 0) {fclose(fpr); return (8);}
 
         ch = strchr(line, '"');
@@ -509,7 +510,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
 
       /* check all other values of line for valid string length */
       for (j=0; j < daydata->colnum; j++) {
-        if (slg_mlgetval (tmp, line, (2+j)) != 0) {fclose(fpr); return (12);}
+        if (slg_mlgetval (tmp, line, (2+j)) != 0) {fclose(fpr); printf("%u: %s\n", j, line); return (12);}
       }
 
       strcpy (daydata->msrline[i], line);
@@ -580,6 +581,7 @@ uint32_t slg_writedayfile (char *filename, slg_daydata *daydata, uint32_t mode)
     stmp[0] = 0;
     if (daydata->coltyp[i-1] == DF_TEMP) strcpy (stmp, "TEMP");
     if (daydata->coltyp[i-1] == DF_RAIN) strcpy (stmp, "RAIN");
+    if (daydata->coltyp[i-1] == DF_EVNT) strcpy (stmp, "EVNT");
     if (stmp[0] == 0) {fclose(fpw); return (2);}
 
     fprintf (fpw, "%lu, %s, \"%s\"\n", (unsigned long) daydata->colid[i-1], stmp, daydata->colstr[i-1]);
@@ -614,6 +616,11 @@ uint32_t slg_writedayfile (char *filename, slg_daydata *daydata, uint32_t mode)
           if (daydata->coltyp[c] == DF_RAIN) {
             v = slg_str2rain (stmp);
             slg_rain2str (stmp, 1, v);
+            fprintf (fpw, " %s", stmp);
+          }
+          if (daydata->coltyp[c] == DF_EVNT) {
+            v = slg_str2event (stmp);
+            slg_event2str (stmp, v);
             fprintf (fpw, " %s", stmp);
           }
         }
@@ -717,6 +724,10 @@ uint32_t slg_cntinvalidvals (slg_daydata *daydata)
 
         if (daydata->coltyp[c] == DF_RAIN) {
           if (slg_str2rain(stmp) == CNERR) num++;
+        }
+
+        if (daydata->coltyp[c] == DF_EVNT) {
+          if (slg_str2event(stmp) == CNERR) num++;
         }
       }
     }
@@ -832,6 +843,33 @@ uint32_t slg_getrainval (slg_daydata *daydata, uint32_t c, uint32_t k)
     return (CNERR);
 
   return (slg_str2rain(stmp));
+}
+
+
+/* get a special boolean event value from dayfile
+ *
+ * parameters:
+ *   *daydata:  daydata object
+ *   c       :  event column index (2, 3, 4, ...)
+ *   k       :  time index (0, 1, 2, ...)
+ *
+ * return value:
+ *   CNERR   :  error, invalid value or value does not exist
+ *   event   :  0 or 1
+ *
+ ****************************************************************************************/
+uint32_t slg_geteventval (slg_daydata *daydata, uint32_t c, uint32_t k)
+{
+  char stmp[12];
+
+  if (k >= slg_timeindexnum(daydata->tmode)) return (CNERR);
+
+  if (daydata->msrline[k][0] != 0x00)
+    slg_mlgetval (stmp, daydata->msrline[k], c);
+  else
+    return (CNERR);
+
+  return (slg_str2event(stmp));
 }
 
 

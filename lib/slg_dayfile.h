@@ -31,6 +31,7 @@
 
 # define DF_TEMP 1
 # define DF_RAIN 2
+# define DF_EVNT 3
 
 
 /* dayfile structure (is completely private) */
@@ -220,6 +221,21 @@ int32_t slg_gettemperval (slg_daydata *daydata, uint32_t c, uint32_t k);
  *
  ****************************************************************************************/
 uint32_t slg_getrainval (slg_daydata *daydata, uint32_t c, uint32_t k);
+
+
+/* get a special boolean event value from dayfile
+ *
+ * parameters:
+ *   *daydata:  daydata object
+ *   c       :  event column index (2, 3, 4, ...)
+ *   k       :  time index (0, 1, 2, ...)
+ *
+ * return value:
+ *   CNERR   :  error, invalid value or value does not exist
+ *   event   :  0 or 1
+ *
+ ****************************************************************************************/
+uint32_t slg_geteventval (slg_daydata *daydata, uint32_t c, uint32_t k);
 
 
 

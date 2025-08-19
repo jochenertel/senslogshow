@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 17.10.2020
- * updated  : 13.01.2022
+ * updated  : 06.08.2025
  *
  **************************************************************************************************/
 
@@ -509,6 +509,60 @@ void slg_rain2str (char *str, uint32_t mode, uint32_t rain)
 
   str[i] = 0;
 }
+
+
+
+/* converts a boolean event string into integer (0 or 1)
+ *
+ * parameters:
+ *   *str:  pointer to string (1 char, format e.g. "0")
+ *
+ * return value:
+ *   CNERR :  error, invalid string
+ *   event :  0 or 1
+ *
+ ****************************************************************************************/
+uint32_t slg_str2event (char *str)
+{
+  size_t   s;
+  uint32_t tmp;
+
+  s = strlen(str);
+
+  if (s != 1) return (CNERR);
+
+  tmp = slg_str2uint32(str);
+
+  if (tmp > 1) return (CNERR);
+  return (tmp);
+}
+
+
+
+/* converts an integer value into a boolean event string
+ *
+ * parameters:
+ *   *str:   pointer to target string (at least 2 chars size)
+ *   event:  boolean event value (0 or 1)
+ *
+ ****************************************************************************************/
+void slg_event2str (char *str, uint32_t event)
+{
+  if (event == 0) {
+    strcpy (str, "0");
+    return;
+  }
+
+  if (event == 1) {
+    strcpy (str, "1");
+    return;
+  }
+
+  /* handle error case of input parameters by setting string to "E" */
+  strcpy (str, "E");
+}
+
+
 
 
 
