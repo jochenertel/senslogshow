@@ -7,7 +7,7 @@
  * author   : Jochen Ertel
  *
  * created  : 26.06.2021
- * updated  : 19.08.2025
+ * updated  : 16.09.2025
  *
  **************************************************************************************************/
 
@@ -510,7 +510,7 @@ uint32_t slg_readdayfile (slg_daydata *daydata, char *filename, uint32_t hmode)
 
       /* check all other values of line for valid string length */
       for (j=0; j < daydata->colnum; j++) {
-        if (slg_mlgetval (tmp, line, (2+j)) != 0) {fclose(fpr); printf("%u: %s\n", j, line); return (12);}
+        if (slg_mlgetval (tmp, line, (2+j)) != 0) {fclose(fpr); return (12);}
       }
 
       strcpy (daydata->msrline[i], line);
